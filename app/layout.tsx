@@ -2,6 +2,7 @@ import { siteMetaData } from "@/contexts/metadata";
 import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import SectionContainer from "@/components/SectionContainer";
 
 const space_grotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -54,8 +55,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="ja" className={`${space_grotesk.variable} scroll-smooth`}>
+      <body className="bg-white text-black antialiased dark:bg-gray-950 dark:text-white">
+        <SectionContainer>
+          <div className="flex h-screen flex-col justify-between font-sans">
+            {/* TODO: Headerコンポーネントを追加する */}
+            <main className="mb-auto">{children}</main>
+            {/* TODO: Footerコンポーネントを追加する */}
+          </div>
+        </SectionContainer>
+      </body>
     </html>
   );
 }

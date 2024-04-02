@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import SectionContainer from "@/components/SectionContainer";
+import { Header } from "@/components/header/Header";
 
 const space_grotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -60,6 +61,7 @@ export default function RootLayout({
         <SectionContainer>
           <div className="flex h-screen flex-col justify-between font-sans">
             {/* TODO: Headerコンポーネントを追加する */}
+            <Header />
             <main className="mb-auto">{children}</main>
             {/* TODO: Footerコンポーネントを追加する */}
           </div>

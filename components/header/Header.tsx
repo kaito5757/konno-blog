@@ -12,7 +12,7 @@ export const Header = (prpos: Props) => {
         <Link href="/">
           <div className="flex items-center justify-between">
             <div className="mr-3">
-              <Image src="/logo.svg" alt="logo" />
+              <Image src="/logo.svg" alt="logo" width={50} height={50} />
             </div>
             <div className="hidden h-6 text-2xl font-semibold sm:block">
               {siteMetaData.headerTitle}

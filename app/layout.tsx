@@ -1,4 +1,4 @@
-import { siteMetaData } from "@/contexts/metadata";
+import { siteMetaData } from "@/contexts/meta-data";
 import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";

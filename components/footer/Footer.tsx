@@ -1,4 +1,4 @@
-import { siteMetaData } from "@/contexts/metadata";
+import { siteMetaData } from "@/contexts/meta-data";
 import dayjs from "dayjs";
 import Link from "next/link";
 

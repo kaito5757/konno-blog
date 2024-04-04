@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { siteMetaData } from "@/contexts/metadata";
-import { headerNavLinks } from "@/contexts/headerNavLinks";
+import { siteMetaData } from "@/contexts/meta-data";
+import { headerNavLinks } from "@/contexts/header-nav-links";
 
 interface Props {}
 

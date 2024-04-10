@@ -1,31 +1,7 @@
-import Image from "next/image";
-
-// 参考サイトからアイコン取得
-// 参考サイト： https://simpleicons.org/
-const components = {
-  github: (
-    <Image
-      src="/icons/github.svg"
-      height={20}
-      width={20}
-      alt="github"
-      className="my-[3px]"
-    />
-  ),
-  zenn: (
-    <Image
-      src="/icons/zenn.svg"
-      height={20}
-      width={20}
-      alt="zenn"
-      className="my-[3px]"
-    />
-  ),
-  qiita: <Image src="/icons/qiita.svg" height={26} width={26} alt="qiita" />,
-};
+import { Icons, IconsType } from "./Icons";
 
 interface Props {
-  kind: keyof typeof components;
+  kind: IconsType;
   href?: string;
 }
 
@@ -39,7 +15,7 @@ export const SocialIcon = ({ kind, href }: Props) => {
     >
       <span className="sr-only">{kind}</span>
       <div className="fill-current text-gray-700 hover:text-primary-500 dark:text-gray-200 dark:hover:text-primary-400">
-        {components[kind]}
+        {Icons[kind]}
       </div>
     </a>
   );

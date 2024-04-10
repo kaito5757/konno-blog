@@ -5,6 +5,7 @@ import "./globals.css";
 import SectionContainer from "@/components/SectionContainer";
 import { Header } from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
+import ThemeProviders from "@/components/footer/ThemeProviders";
 
 const space_grotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -57,15 +58,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className={`${space_grotesk.variable} scroll-smooth`}>
+    <html
+      lang="ja"
+      className={`${space_grotesk.variable} scroll-smooth`}
+      suppressHydrationWarning
+    >
       <body className="bg-white text-black antialiased dark:bg-gray-950 dark:text-white">
-        <SectionContainer>
-          <div className="flex h-screen flex-col justify-between font-sans">
-            <Header />
-            <main className="mb-auto">{children}</main>
-            <Footer />
-          </div>
-        </SectionContainer>
+        <ThemeProviders>
+          <SectionContainer>
+            <div className="flex h-screen flex-col justify-between font-sans">
+              <Header />
+              <main className="mb-auto">{children}</main>
+              <Footer />
+            </div>
+          </SectionContainer>
+        </ThemeProviders>
       </body>
     </html>
   );

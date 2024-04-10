@@ -6,4 +6,5 @@ export const siteMetaData = {
   author: "Kaito Konno",
   ogpType: "website",
   ogpImage: "https://placehold.jp/1200x630.png",
+  theme: "system",
 };

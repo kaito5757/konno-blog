@@ -4,9 +4,7 @@ import { siteMetaData } from "@/contexts/meta-data";
 import { headerNavLinks } from "@/contexts/header-nav-links";
 import ThemeSwitch from "./ThemeSwitch";
 
-interface Props {}
-
-export const Header = (prpos: Props) => {
+export const Header = () => {
   return (
     <header className="flex items-center justify-between py-10">
       <div>

@@ -1,7 +1,7 @@
 import { siteMetaData } from "@/contexts/meta-data";
 import dayjs from "dayjs";
 import Link from "next/link";
-import { SocialIcon } from "../social-icons";
+import { SocialIcon } from "./social-icons";
 
 export default function Footer() {
   return (

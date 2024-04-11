@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { siteMetaData } from "@/contexts/meta-data";
 import { headerNavLinks } from "@/contexts/header-nav-links";
-import ThemeSwitch from "../footer/ThemeSwitch";
+import ThemeSwitch from "./ThemeSwitch";
 
 interface Props {}
 

@@ -2,10 +2,10 @@ import { siteMetaData } from "@/contexts/meta-data";
 import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import SectionContainer from "@/components/SectionContainer";
+import SectionContainer from "@/components/common/SectionContainer";
 import { Header } from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
-import ThemeProviders from "@/components/footer/ThemeProviders";
+import ThemeProviders from "@/components/header/ThemeProviders";
 
 const space_grotesk = Space_Grotesk({
   subsets: ["latin"],

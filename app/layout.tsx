@@ -1,7 +1,7 @@
 import { siteMetaData } from "@/contexts/meta-data";
 import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
-import "./globals.css";
+import "../css/globals.css";
 import SectionContainer from "@/components/common/SectionContainer";
 import { Header } from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";

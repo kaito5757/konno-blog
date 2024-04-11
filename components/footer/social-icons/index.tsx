@@ -6,6 +6,7 @@ interface Props {
 }
 
 export const SocialIcon = ({ kind, href }: Props) => {
+  const Svg = Icons[kind];
   return (
     <a
       className="text-sm text-gray-500 transition hover:text-gray-600"
@@ -14,9 +15,7 @@ export const SocialIcon = ({ kind, href }: Props) => {
       href={href}
     >
       <span className="sr-only">{kind}</span>
-      <div className="fill-current text-gray-700 hover:text-primary-500 dark:text-gray-200 dark:hover:text-primary-400">
-        {Icons[kind]}
-      </div>
+      <Svg className="h-6 w-6 pt-1 fill-current text-gray-700 hover:text-primary-500 dark:text-gray-200 dark:hover:text-primary-400" />
     </a>
   );
 };

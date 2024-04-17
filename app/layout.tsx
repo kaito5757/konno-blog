@@ -5,7 +5,7 @@ import "../css/globals.css";
 import SectionContainer from "@/components/common/SectionContainer";
 import { Header } from "@/components/header/Header";
 import Footer from "@/components/footer/Footer";
-import ThemeProviders from "@/components/header/ThemeProviders";
+import ThemeProviders from "@/components/common/ThemeProviders";
 
 const space_grotesk = Space_Grotesk({
   subsets: ["latin"],

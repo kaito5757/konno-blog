@@ -1,25 +1,28 @@
 import { allBlogs, Blog } from "contentlayer/generated";
 import Link from "next/link";
 import dayjs from "dayjs";
-
-function descTimeSort(a: Date, b: Date) {
-  return a < b ? 1 : -1;
-}
+import { siteMetaData } from "@/contexts/meta-data";
+import { Blogs } from "./blogs";
 
 export default function Home() {
   const blogs = allBlogs.sort((a, b) =>
-    descTimeSort(new Date(a.date), new Date(b.date))
+    new Date(a.date) < new Date(b.date) ? 1 : -1
   );
-  console.log("ブログ", blogs);
+
   return (
-    <div className="mx-auto max-w-xl py-8">
-      <h1 className="mb-8 text-center text-2xl font-black">
-        Next.js + Contentlayer Example
-      </h1>
-      {blogs.map((blog, idx) => (
-        <BlogCard key={idx} {...blog} />
-      ))}
-    </div>
+    <>
+      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+        <div className="space-y-2 pb-8 pt-6 md:space-y-5">
+          <h1 className="text-3xl font-extrabold leading-9 tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl sm:leading-10 md:text-6xl md:leading-14">
+            最新
+          </h1>
+          <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
+            {siteMetaData.description}
+          </p>
+        </div>
+        <Blogs blogs={blogs} />
+      </div>
+    </>
   );
 }
 

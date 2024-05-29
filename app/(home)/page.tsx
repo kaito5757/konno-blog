@@ -1,11 +1,9 @@
-import { allBlogs, Blog } from "contentlayer/generated";
-import Link from "next/link";
-import dayjs from "dayjs";
+import { allBlogs } from "contentlayer/generated";
 import { siteMetaData } from "@/contexts/meta-data";
-import { Blogs } from "./blogs";
+import { Blogs } from "./Blogs";
 
 export default function Home() {
-  const blogs = allBlogs.sort((a, b) =>
+  const blogs = allBlogs.filter(b => b.release).sort((a, b) =>
     new Date(a.date) < new Date(b.date) ? 1 : -1
   );
 
@@ -23,27 +21,5 @@ export default function Home() {
         <Blogs blogs={blogs} />
       </div>
     </>
-  );
-}
-
-function BlogCard(blog: Blog) {
-  return (
-    <div className="mb-8">
-      <h2 className="mb-1 text-xl">
-        <Link
-          href={blog.url}
-          className="text-blue-700 hover:text-blue-900 dark:text-blue-400"
-        >
-          {blog.title}
-        </Link>
-      </h2>
-      <time dateTime={blog.date} className="mb-2 block text-xs text-gray-600">
-        {dayjs(blog.date).format("YYYY/M/D")}
-      </time>
-      <div
-        className="text-sm [&>*]:mb-3 [&>*:last-child]:mb-0"
-        dangerouslySetInnerHTML={{ __html: blog.body.html }}
-      />
-    </div>
   );
 }

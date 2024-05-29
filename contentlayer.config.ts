@@ -1,4 +1,5 @@
 import { defineDocumentType, makeSource } from "contentlayer/source-files";
+import { siteMetaData } from "./contexts/meta-data";
 
 export const Blog = defineDocumentType(() => ({
   name: "Blog",
@@ -7,7 +8,7 @@ export const Blog = defineDocumentType(() => ({
     title: { type: "string", required: true },
     date: { type: "date", required: true },
     tags: { type: "list", of: { type: "string" }, default: [] },
-    draft: { type: "boolean" },
+    release: { type: "boolean" },
     summary: { type: "string" },
     slug: {
       type: "string",
@@ -15,11 +16,11 @@ export const Blog = defineDocumentType(() => ({
     },
   },
   computedFields: {
-    url: {
-      type: "string",
-      resolve: (blog) => `/blogs/${blog._raw.flattenedPath}`,
+    slug: {
+      type: 'string',
+      resolve: (doc) => doc._raw.flattenedPath.replace(/^.+?(\/)/, ''),
     },
-  },
+  }
 }));
 
 export default makeSource({ contentDirPath: "data", documentTypes: [Blog] });

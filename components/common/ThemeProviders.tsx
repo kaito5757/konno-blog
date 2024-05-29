@@ -1,3 +1,5 @@
+"use client";
+
 import { siteMetaData } from "@/contexts/meta-data";
 import { ThemeProvider } from "next-themes";
 

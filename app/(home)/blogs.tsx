@@ -1,3 +1,4 @@
+import { Tag } from "@/components/common/Tag";
 import type { Blog } from "contentlayer/generated";
 import dayjs from "dayjs";
 import Link from "next/link";
@@ -17,14 +18,13 @@ export function Blogs({ blogs }: Props) {
           <li key={slug} className="py-12">
             <article>
               <div className="space-y-2 xl:grid xl:grid-cols-4 xl:items-baseline xl:space-y-0">
-                <dl className="grid-item col-span-1">
-                  <dt className="sr-only">Published on</dt>
-                  <dd className="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
+                <div className="grid-item col-span-1">
+                  <div className="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
                     <time dateTime={date}>
                       {dayjs(date).format("YYYY/MM/DD")}
                     </time>
-                  </dd>
-                </dl>
+                  </div>
+                </div>
                 <div className="grid-item col-span-3 space-y-5 xl:col-span-3">
                   <div className="space-y-6">
                     <div>
@@ -62,16 +62,5 @@ export function Blogs({ blogs }: Props) {
         );
       })}
     </ul>
-  );
-}
-
-function Tag({ text }: { text: string }) {
-  return (
-    <Link
-      href={`/tags/${text}`}
-      className="mr-3 text-sm font-medium uppercase text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"
-    >
-      {text.split(" ").join("-")}
-    </Link>
   );
 }

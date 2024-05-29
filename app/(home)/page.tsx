@@ -1,11 +1,9 @@
-import { allBlogs } from "contentlayer/generated";
 import { siteMetaData } from "@/contexts/meta-data";
 import { Blogs } from "./Blogs";
+import { getSortedAllBlog } from "@/utils/blog";
 
 export default function Home() {
-  const blogs = allBlogs.filter(b => b.release).sort((a, b) =>
-    new Date(a.date) < new Date(b.date) ? 1 : -1
-  );
+  const blogs = getSortedAllBlog();
 
   return (
     <>

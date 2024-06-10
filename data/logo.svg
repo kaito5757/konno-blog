@@ -1,3 +1,38 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid meet" viewBox="344.5639097744361 330.27819548872174 111.73684210526318 91.21804511278197" width="53.87" height="43.61"><defs><path d="M453.3 331.28L453.3 359.85L388.64 418.5L388.64 388.42L453.3 331.28Z" id="aFZf6T5ED"></path><linearGradient id="gradientb2ThqnP5Op" gradientUnits="userSpaceOnUse" x1="420.97" y1="331.28" x2="420.97" y2="418.5"><stop style="stop-color: #06b6d4;stop-opacity: 1" offset="0%"></stop><stop style="stop-color: #67e8f9;stop-opacity: 1" offset="100%"></stop></linearGradient><path d="M410.23 331.28L410.23 359.85L345.56 418.5L345.56 388.42L410.23 331.28Z" id="a9fehgwfM"></path><linearGradient id="gradientk1wNV9Ostb" gradientUnits="userSpaceOnUse" x1="377.89" y1="331.28" x2="377.89" y2="418.5"><stop style="stop-color: #06b6d4;stop-opacity: 1" offset="0%"></stop><stop style="stop-color: #67e8f9;stop-opacity: 1" offset="100%"></stop></linearGradient></defs><g><g><use xlink:href="#aFZf6T5ED" opacity="1" fill="url(#gradientb2ThqnP5Op)"></use></g><g><use xlink:href="#a9fehgwfM" opacity="1" fill="url(#gradientk1wNV9Ostb)"></use></g></g></svg>
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+ "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg"
+ width="50.000000pt" height="50.000000pt" viewBox="0 0 480.000000 486.000000"
+ preserveAspectRatio="xMidYMid meet">
+
+<g transform="translate(0.000000,486.000000) scale(0.100000,-0.100000)"
+fill="#000000" stroke="none">
+<path d="M2097 4815 c-546 -66 -1057 -318 -1432 -706 -56 -57 -126 -135 -157
+-174 -232 -289 -404 -655 -478 -1017 -30 -142 -30 -145 -30 -487 0 -325 1
+-350 25 -465 47 -235 118 -438 226 -644 523 -1005 1673 -1506 2768 -1206 1037
+284 1761 1235 1761 2313 0 814 -404 1561 -1090 2014 -220 145 -553 284 -807
+336 -243 50 -553 64 -786 36z m597 -210 c397 -62 756 -215 1046 -448 362 -290
+622 -678 754 -1127 56 -193 79 -365 79 -600 0 -370 -70 -666 -235 -993 -111
+-218 -243 -400 -415 -569 -166 -164 -335 -286 -540 -391 -329 -168 -630 -240
+-1003 -240 -235 0 -407 23 -600 79 -377 111 -700 304 -966 576 -207 212 -341
+409 -448 660 -87 204 -129 358 -168 603 -16 103 -16 447 0 550 39 245 81 399
+168 603 111 259 262 478 476 688 235 230 460 376 753 486 209 78 345 109 635
+142 70 8 367 -4 464 -19z"/>
+<path d="M987 2864 c-4 -4 -7 -211 -7 -461 l0 -453 30 0 30 0 -2 458 c-3 451
+-3 457 -23 460 -12 2 -24 0 -28 -4z"/>
+<path d="M1124 2855 c-15 -38 0 -43 153 -47 178 -5 233 -22 317 -99 66 -60
+101 -117 122 -201 47 -181 -48 -379 -221 -464 -57 -28 -67 -29 -212 -32 l-153
+-4 0 -29 0 -29 118 0 c69 0 143 6 181 15 133 32 245 124 309 254 36 74 37 79
+37 191 0 112 -1 117 -36 191 -68 142 -200 239 -351 259 -119 15 -258 13 -264
+-5z"/>
+<path d="M2217 2863 c-4 -3 -7 -210 -7 -460 l0 -453 25 0 25 0 0 460 c0 439
+-1 460 -18 460 -10 0 -22 -3 -25 -7z"/>
+<path d="M2340 2840 l0 -30 168 2 167 3 0 25 0 25 -167 3 -168 2 0 -30z"/>
+<path d="M3062 2853 c6 -21 359 -896 363 -901 2 -2 11 10 19 27 16 30 14 34
+-157 458 -168 414 -174 428 -202 431 -23 3 -27 0 -23 -15z"/>
+<path d="M3616 2535 c-117 -286 -136 -339 -128 -363 5 -15 12 -26 17 -25 8 1
+305 699 305 716 0 4 -13 7 -28 7 -27 0 -31 -8 -166 -335z"/>
+<path d="M2340 2410 l0 -30 111 0 110 0 -3 28 -3 27 -107 3 -108 3 0 -31z"/>
+<path d="M2340 1975 l0 -25 170 0 170 0 0 25 0 25 -170 0 -170 0 0 -25z"/>
+</g>
+</svg>

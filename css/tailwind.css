@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.task-list-item::before {
+  @apply hidden;
+}
+
+.task-list-item {
+  @apply list-none;
+}
+
+.footnotes {
+  @apply mt-12 border-t border-gray-200 pt-8 dark:border-gray-700;
+}
+
+.data-footnote-backref {
+  @apply no-underline;
+}
+
+.csl-entry {
+  @apply my-5;
+}
+
+/* https://stackoverflow.com/questions/61083813/how-to-avoid-internal-autofill-selected-style-to-be-applied */
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  transition:
+    background-color 600000s 0s,
+    color 600000s 0s;
+}
+
+.katex-display {
+  overflow: auto hidden;
+}
+
+.content-header-link {
+  opacity: 0;
+  margin-left: -24px;
+  padding-right: 4px;
+}
+
+.content-header:hover .content-header-link,
+.content-header-link:hover {
+  opacity: 1;
+}
+
+.linkicon {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.toc-list {
+  @apply my-0 w-full px-0;
+}
+
+.toc-link {
+  @apply inline-block w-full rounded-md py-1 font-medium no-underline transition-colors duration-200;
+}
+
+.is-collapsible .toc-link {
+  @apply ml-2 font-normal;
+}
+
+.toc-link:hover {
+  @apply text-sky-800;
+}
+
+.toc-list-item {
+  @apply my-0 w-full list-none rounded-md py-0;
+}
+
+.is-active-link {
+  @apply font-bold text-sky-500;
+}
+
+/* hover:text-sky-600 dark:hover:text-sky-400 */

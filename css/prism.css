@@ -28,11 +28,11 @@
 }
 
 .code-line.deleted {
-  @apply bg-red-500 bg-opacity-20;
+  @apply bg-opacity-20 text-sky-500;
 }
 
 .highlight-line {
-  @apply -mx-4 border-l-4 border-primary-500 bg-gray-700 bg-opacity-50;
+  @apply -mx-4 border-l-4 border-sky-500 bg-gray-700 bg-opacity-50;
 }
 
 .line-number::before {

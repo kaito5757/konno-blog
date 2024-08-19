@@ -2,13 +2,147 @@
 title: プロジェクト構成
 date: '2024-08-18'
 tags: ['Next.js']
-draft: true
+draft: false
 summary: Next.jsのプロジェクト構成
 ---
 
 ## トップレベルフォルダ
 
+- アプリケーションのコードと静的アセットを整理するために使用される。
+
+```
+app
+pages
+public
+...
+```
+
+```
+src
+ ├─ app
+ ├─ pages
+public
+...
+```
+
+<div class="w-full overflow-x-auto">
+  <table style={{ margin: '0 0' }}>
+    <thead>
+      <tr>
+        <th style={{ textAlign: 'left', width: '20%' }}>ファイル名</th>
+        <th style={{ textAlign: 'left', width: '70%' }}>説明</th>
+        <th style={{ textAlign: 'right', width: '10%' }}></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**app**</td>
+        <td style={{ textAlign: 'left' }}>App Router</td>
+        <td style={{ textAlign: 'center' }}>[詳細]()</td>
+      </tr>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**pages**</td>
+        <td style={{ textAlign: 'left' }}>Pages Router</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**public**</td>
+        <td style={{ textAlign: 'left' }}>配信される静的アセット</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**src**</td>
+        <td style={{ textAlign: 'left' }}>アプリケーションのソースフォルダ（オプション）</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+## トップレベルファイル
+
+- アプリケーションの構成、依存関係の管理、ミドルウェアの実行、監視ツールの統合、環境変数の定義に使用される。
+
 ## 参考
 
-- [Introduction](https://nextjs.org/docs)
-- [イントロダクション](https://ja.next-community-docs.dev/docs/app-router/getting-started/)
+<div class="w-full overflow-x-auto">
+  <table style={{ margin: '0 0' }}>
+    <thead>
+      <tr>
+        <th style={{ textAlign: 'left', width: '20%' }}>ファイル名</th>
+        <th style={{ textAlign: 'left', width: '70%' }}>説明</th>
+        <th style={{ textAlign: 'right', width: '10%' }}></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**next.config.js**</td>
+        <td style={{ textAlign: 'left' }}>Next.jsの設定ファイル</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**package.json**</td>
+        <td style={{ textAlign: 'left' }}>プロジェクトの依存関係およびスクリプト</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**instrumentation.ts**</td>
+        <td style={{ textAlign: 'left' }}>OpenTelemetryおよびInstrumentationファイル</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**middleware.ts**</td>
+        <td style={{ textAlign: 'left' }}>Next.jsリクエストミドルウェア</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**.env**</td>
+        <td style={{ textAlign: 'left' }}>環境変数</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**.env.local**</td>
+        <td style={{ textAlign: 'left' }}>ローカル環境変数</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**.env.production**</td>
+        <td style={{ textAlign: 'left' }}>プロダクション環境変数</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**.env.development**</td>
+        <td style={{ textAlign: 'left' }}>開発環境変数</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**.eslintrc.json**</td>
+        <td style={{ textAlign: 'left' }}>ESLintの設定ファイル</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**.gitignore**</td>
+        <td style={{ textAlign: 'left' }}>Gitが無視するファイルやフォルダの定義</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**.next-env.d.ts**</td>
+        <td style={{ textAlign: 'left' }}>Next.jsのTypeScript定義ファイル</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**tsconfig.json**</td>
+        <td style={{ textAlign: 'left' }}>TypeScript用の設定ファイル</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+      <tr>
+        <td style={{ textAlign: 'left' }}>**jsconfig.json**</td>
+        <td style={{ textAlign: 'left' }}>JavaScript用の設定ファイル</td>
+        <td style={{ textAlign: 'center' }}>詳細</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+- [Next.js Project Structure](https://nextjs.org/docs/getting-started/project-structure)
+- [Next.jsのプロジェクト構成](https://ja.next-community-docs.dev/docs/app-router/getting-started/project-structure)

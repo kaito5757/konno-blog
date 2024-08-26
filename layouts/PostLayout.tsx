@@ -15,7 +15,7 @@ const discussUrl = (path) =>
   `https://mobile.twitter.com/search?q=${encodeURIComponent(`${siteMetadata.siteUrl}/${path}`)}`
 
 const postDateTemplate: Intl.DateTimeFormatOptions = {
-  weekday: 'long',
+  weekday: 'narrow',
   year: 'numeric',
   month: 'long',
   day: 'numeric',
@@ -45,7 +45,7 @@ export default function PostLayout({ content, authorDetails, next, prev, childre
                   <dt className="sr-only">Published on</dt>
                   <dd className="text-base font-medium leading-6 text-gray-500 dark:text-gray-400">
                     <time dateTime={date}>
-                      {new Date(date).toLocaleDateString(siteMetadata.locale, postDateTemplate)}
+                      {`公開日: ${new Date(date).toLocaleDateString(siteMetadata.locale, postDateTemplate)}`}
                     </time>
                   </dd>
                 </div>

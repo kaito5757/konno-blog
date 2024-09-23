@@ -133,3 +133,19 @@ console.log(fullName1.equals(fullName3)); // false が表示される
 
 ## ふるまいを持った値オブジェクト
 - 値を保持するコンテナではなく、ふるまいを持つことができるオブジェクト
+- 量と通貨単位を属性にもつお金（Money）オブジェクトの場合
+```
+export class Money {
+  private readonly amount: number;
+  private readonly currency: string;
+
+  constructor(amount: number, currency: string) {
+    if (!currency) {
+      throw new Error('currency must not be null, undefined, or empty');
+    }
+
+    this.amount = amount;
+    this.currency = currency;
+  }
+}
+```

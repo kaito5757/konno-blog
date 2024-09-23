@@ -45,4 +45,91 @@ console.log(fullName.lastName); // ⭕️ "smith" が表示される
   - 交換が可能である
   - 等価性によって比較される
 
-### 不変である
+### 1. 不変である
+- 扱い際に予測可能な動作が期待でき、コード全体の信頼性が向上する。
+
+### 2. 交換可能である
+- 同じ値を持つ他の値オブジェクトと自由に交換が可能。
+```
+export class FullName {
+  public readonly firstName: string;
+  public readonly lastName: string;
+
+  constructor(firstName: string, lastName: string) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+  }
+}
+```
+```
+const fullName = new FullName("masanobu", "naruse");
+const updatedFullName = new FullName("masanobu", "sato");
+
+console.log(updatedFullName.lastName); // "sato" が表示される
+```
+
+### 3. 等価性によって比較される
+- 値オブジェクトは値なので、属性を取り出して比較するのは値オブジェクトではない。
+```
+export class FullName {
+  public readonly firstName: string;
+  public readonly lastName: string;
+
+  constructor(firstName: string, lastName: string) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+  }
+}
+```
+```
+const nameA = new FullName("john", "doe");
+const nameB = new FullName("john", "smith");
+
+const compareResult =
+  nameA.firstName === nameB.firstName &&
+  nameA.lastName === nameB.lastName;
+
+console.log(compareResult); // false が表示される
+```
+- 値オブジェクトはあくまで値なので、値オブジェクト同士で比較する。
+  - 比較用のメソッドを用意する。
+  - 属性が追加されても修正が一つ（比較用のメソッド）で済む
+```
+export class FullName {
+  public readonly firstName: string;
+  public readonly lastName: string;
+
+  constructor(firstName: string, lastName: string) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+  }
+
+  equals(other: FullName | null): boolean {
+    if (other === null) return false;
+    if (this === other) return true;
+    return this.firstName === other.firstName && this.lastName === other.lastName;
+  }
+}
+```
+```
+const fullName1 = new FullName("masanobu", "naruse");
+const fullName2 = new FullName("masanobu", "naruse");
+const fullName3 = new FullName("masanobu", "sato");
+
+console.log(fullName1.equals(fullName2)); // true が表示される
+console.log(fullName1.equals(fullName3)); // false が表示される
+```
+
+
+## 値オブジェクトにする基準
+### 1. ルールが存在しているか
+- その値に対する特定のビジネスルールや制約を持っている場合
+  - 例）名前であれば、「空であってはいけない」「特定のフォーマットに従う必要がある」などのルールが存在している
+
+### 2. それ単体で扱いたいか
+- その値が独立して存在し、単独で操作されることが多い場合
+  - 例）お金の金額と通貨をまとめた「Money」オブジェクト
+
+
+## ふるまいを持った値オブジェクト
+- 値を保持するコンテナではなく、ふるまいを持つことができるオブジェクト

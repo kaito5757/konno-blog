@@ -1,0 +1,48 @@
+---
+title: 値オブジェクト
+date: '2024-09-23'
+tags: ['ドメイン駆動開発']
+draft: false
+summary: ドメイン駆動開発の値オブジェクトについてまとめた記事
+---
+
+## 値オブジェクトとは
+- システム固有の値を表現するために定義されたオブジェクトのこと
+  - プリミティブな値でやりくりするのではなく、システム固有の値を使用して実装していく。
+
+- 姓名をプリミティブな値で定義した場合
+  - 世界には、名が前方に配置されるパターンと後方に配置されるパターンが存在するため、名を表示させたいのに姓が表示されてしまう場合がある。
+```
+// 姓"smith"を表示させる
+const fullName = "john smith";
+const tokens = fullName.split(' ');
+const lastName = tokens[0];
+console.log(lastName); // ❌ "john" が表示されてしまう
+```
+
+- 姓名をクラス（値オブジェクト）で定義した場合
+  - インスタンス生成時に、正しくコンストラクタに値を指定すれば姓名の順序が変わることなく取り出すことができる。
+```
+export class FullName {
+  public readonly firstName: string;
+  public readonly lastName: string;
+
+  constructor(firstName: string, lastName: string) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+  }
+}
+```
+```
+const fullName = new FullName("john", "smith");
+console.log(fullName.lastName); // ⭕️ "smith" が表示される
+```
+- このようにオブジェクトでもあり値でもあるため、ドメイン駆動設計では値オブジェクトと呼ぶ。
+
+## 値オブジェクトの性質
+- 代表的な値の性質は3つ
+  - 不変である
+  - 交換が可能である
+  - 等価性によって比較される
+
+### 不変である

@@ -134,6 +134,7 @@ console.log(fullName1.equals(fullName3)); // false が表示される
 ## ふるまいを持った値オブジェクト
 - 値を保持するコンテナではなく、ふるまいを持つことができるオブジェクト
 - 量と通貨単位を属性にもつお金（Money）オブジェクトの場合
+  - 例）お金を加算するAdd
 ```
 export class Money {
   private readonly amount: number;
@@ -147,5 +148,21 @@ export class Money {
     this.amount = amount;
     this.currency = currency;
   }
+
+  // 例）お金を加算するAdd
+  add(arg: Money): Money {
+    if (!arg) {
+      throw new Error('Argument cannot be null or undefined');
+    }
+    if (this.currency !== arg.currency) {
+      throw new Error(`通貨単位が異なります（this:${this.currency}, arg:${arg.currency}）`);
+    }
+
+    return new Money(this.amount + arg.amount, this.currency);
+  }
 }
+```
+
+```
+
 ```

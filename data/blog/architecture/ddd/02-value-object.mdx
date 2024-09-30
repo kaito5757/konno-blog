@@ -6,7 +6,7 @@ draft: false
 summary: ドメイン駆動開発の値オブジェクトについてまとめた記事
 ---
 
-## 値オブジェクトとは
+## ⚪︎値オブジェクトとは
 - システム固有の値を表現するために定義されたオブジェクトのこと
   - プリミティブな値でやりくりするのではなく、システム固有の値を使用して実装していく。
 
@@ -39,7 +39,7 @@ console.log(fullName.lastName); // ⭕️ "smith" が表示される
 ```
 - このようにオブジェクトでもあり値でもあるため、ドメイン駆動設計では値オブジェクトと呼ぶ。
 
-## 値オブジェクトの性質
+## ⚪︎値オブジェクトの性質
 - 代表的な値の性質は3つ
   - 不変である
   - 交換が可能である
@@ -120,8 +120,7 @@ console.log(fullName1.equals(fullName2)); // true が表示される
 console.log(fullName1.equals(fullName3)); // false が表示される
 ```
 
-
-## 値オブジェクトにする基準
+## ⚪︎値オブジェクトにする基準
 ### 1. ルールが存在しているか
 - その値に対する特定のビジネスルールや制約を持っている場合
   - 例）名前であれば、「空であってはいけない」「特定のフォーマットに従う必要がある」などのルールが存在している
@@ -131,7 +130,7 @@ console.log(fullName1.equals(fullName3)); // false が表示される
   - 例）お金の金額と通貨をまとめた「Money」オブジェクト
 
 
-## ふるまいを持った値オブジェクト
+## ⚪︎ふるまいを持った値オブジェクト
 - 値を保持するコンテナではなく、ふるまいを持つことができるオブジェクト
 - 量と通貨単位を属性にもつお金（Money）オブジェクトの場合
   - 例）お金を加算するAdd
@@ -164,5 +163,66 @@ export class Money {
 ```
 
 ```
+const myMoney = new Money(1000, "JPY");
+const allowance = new Money(3000, "JPY");
+const result = myMoney.add(allowance); // 加算される
 
+const jpy = new Money(1000, "JPY");
+const usd = new Money(10, "USD");
+const result = jpy.add(usd); // 例外発生
 ```
+
+
+## ⚪︎値オブジェクトを採用する理由
+### 1. 表現力を増す
+- プリミティブな文字列型より値オブジェクトで定義することで表現力が増す
+  - 例）工業製品のモデル番号
+  - 値オブジェクトで定義することで、modelNumberが製品コード、枝番、ロット番号から構成される番号だとわかる。
+```
+// プリミティブな値で定義した製品番号
+const modelNumber = "a54321-200-5"
+```
+```
+// 値オブジェクトで定義した製品番号
+class ModelNumber {
+  constructor(
+    public readonly productCode: string,
+    public readonly branch: string,
+    public readonly lot: string
+  ) {}
+
+  public toString(): string {
+    return `${this.productCode}-${this.branch}-${this.lot}`;
+  }
+}
+```
+
+### 2. 不正な値を存在させない
+- システムに存在する値はルールが存在しており、値オブジェクトで定義することで不正な値を防ぐことができる。
+  - 例）ユーザー名
+    - 「3文字以上10文字以下」
+    - 「利用できる文字列はアルファベットと数字のみ」
+```
+// プリミティブな値で定義すると不正な値を定義してしまう可能性がある
+const userName = "me";
+```
+```
+// 値オブジェクトにガード節を書くことで不正な値を防ぐことができる。
+// 毎回不正値のチェックをしなくて済む。
+class UserName {
+  private readonly value: string;
+
+  constructor(value: string) {
+    if (!value) {
+      throw new Error(`ArgumentNullException: ${value}`);
+    }
+    if (value.length < 3) {
+      throw new Error(`ユーザ名は3文字以上です。: ${value}`);
+    }
+
+    this.value = value;
+  }
+}
+```
+
+### 3. 誤った代入を防ぐ

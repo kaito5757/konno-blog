@@ -226,3 +226,141 @@ class UserName {
 ```
 
 ### 3. 誤った代入を防ぐ
+- プリミティブな値を使用すると、誤った代入する可能性がある。
+  - 値オブジェクトを使用しない場合
+```
+class User {
+  public id: string;
+  public name: string;
+
+  constructor(id: string, name: string) {
+    this.id = id;
+    this.name = id;
+  }
+}
+```
+```
+function createUser(name: string): User {
+  const user = new User("dummyId", "dummyName");
+  user.id = name; // 誤った代入をしているが、エラーは発生しない
+  return user;
+}
+```
+- 値オブジェクトを使用することで、誤った代入を防ぐことができる。
+  - 値オブジェクトを利用する場合
+```
+class UserId {
+  private readonly value: string;
+
+  constructor(value: string | null) {
+    if (!value) {
+      throw new Error(`ArgumentNullException: ${value}`);
+    }
+    this.value = value;
+  }
+}
+```
+```
+class UserName {
+  private readonly value: string;
+
+  constructor(value: string | null) {
+    if (!value) {
+      throw new Error(`ArgumentNullException: ${value}`);
+    }
+    this.value = value;
+  }
+}
+```
+```
+class User {
+  public Id: UserId;
+  public Name: UserName;
+
+  constructor(id: UserId, name: UserName) {
+    this.Id = id;
+    this.Name = name;
+  }
+}
+```
+```
+function CreateUser(name: UserName): User {
+  const user = new User(new UserId("dummyId"), new UserName("dummyName"));
+  user.Id = name; // コンパイルエラーが発生する
+  return user;
+}
+```
+
+### 4. ロジックの散在を防ぐ
+- 値オブジェクトを使用しないユーザーの作成処理には、入力値の確認が必要になる。
+他の箇所で作成処理があったり更新処理があった場合に毎回入力値チェックを確認する必要があり、コードが重複してしまう。
+  - 値オブジェクトを使用しない場合
+```
+function CreateUser(name?: string| null): User {
+  if (!name) {
+    throw new Error(`ArgumentNullException: ${name}`);
+  }
+  if (name.length < 3) {
+    throw new Error(`ユーザ名は3文字以上です。: ${name}`);
+  }
+
+  const user = new User("dummyId", name);
+  return user;
+}
+```
+```
+function UpdateUser(id: string, name?: string | null): void {
+  if (!name) {
+    throw new Error(`ArgumentNullException: ${name}`);
+  }
+  if (name.length < 3) {
+    throw new Error(`ユーザ名は3文字以上です。: ${name}`);
+  }
+
+  // ユーザ情報の更新処理
+  ...
+}
+```
+- 入力値のチェックを値オブジェクトで行うことで重複を防ぐことができる。
+  - 値オブジェクトを使用する場合
+```
+class UserName {
+  private readonly value: string;
+
+  constructor(value: string | null) {
+    if (!value) {
+      throw new Error(`ArgumentNullException: ${value}`);
+    }
+    if (value.length < 3) {
+      throw new Error(`ユーザ名は3文字以上です。: ${value}`);
+    }
+    this.value = value;
+  }
+}
+```
+```
+class User {
+  private readonly id: UserId;
+  private readonly name: UserName;
+
+  constructor(id: UserId, name: UserName) {
+    this.id = id;
+    this.name = name;
+  }
+}
+```
+```
+function createUser(name: string): User {
+  const userId = new UserId("dummyId");
+  const userName = new UserName(name); // インスタンス生成時に入力値のチェック
+  const user = new User(userId, userName);
+  return user;
+}
+```
+```
+function updateUser(id: UserId, name: string): void {
+  const userName = new UserName(name); // インスタンス生成時に入力値のチェック
+  // ユーザ情報の更新処理
+  ...
+}
+```

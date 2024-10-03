@@ -7,3 +7,87 @@ summary: ライフサイクルのあるオブジェクト「エンティティ�
 ---
 
 ## ⚪︎エンティティとは
+- ドメインモデルを実装したドメインオブジェクト
+- 属性ではなく、同一性（identity）により識別される。
+（属性によって識別されるオブジェクトは、「値オブジェクト」）
+
+## ⚪︎エンティティの性質
+- エンティティの性質は次の3つ
+  - 可変である
+  - 同じ属性であっても区別される
+  - 同一性により区別される
+
+### 1. 可変である
+- 値オブジェクトが不変なオブジェクトなのに比べて、エンティティは可変なオブジェクト
+- エンティティの属性は変化することを許容されている。
+- エンティティの属性を変化させたいときは、ふるまいを通じて属性を変更する。
+  - 例）ユーザー名
+```
+class User {
+  private name: string;
+
+  constructor(name: string) {
+    this.changeName(name);
+  }
+
+  public changeName(name: string | null): void {
+    if (!name) {
+      throw new Error(`ArgumentNullException: ${name}`);
+    }
+    if (name.length < 3) {
+      throw new Error("ユーザ名は3文字以上です。");
+    }
+    this.name = name;
+  }
+
+  public getName(): string {
+    return this.name;
+  }
+}
+```
+- 全ての属性を必ず可変にする必要はなく、必要に応じて属性を可変にする。
+- **可能な限り不変にしておくことが良い習慣。**
+
+### 2. 同じ属性であっても区別される
+- 値オブジェクトは等価性の比較によって区別されるが、エンティティは識別子（Identity）によって識別される。
+  - 例）識別子（UserId）を追加したユーザーオブジェクト
+```
+class UserId {
+  public readonly value: string;
+
+  constructor(value: string | null) {
+    if (!value) {
+      throw new Error(`ArgumentNullException: value`);
+    }
+    this.value = value;
+  }
+}
+```
+```
+class UserName {
+  public readonly value: string;
+
+  constructor(value: string | null) {
+    if (!value) {
+      throw new Error(`ArgumentNullException: value`);
+    }
+    if (value.length < 3) {
+      throw new Error("ユーザ名は3文字以上です。");
+    }
+    this.value = value;
+  }
+}
+```
+```
+class User {
+  public readonly id: UserId;
+  public readonly name: UserName;
+
+  constructor(id: UserId, name: UserName) {
+    this.id = id;
+    this.name = name;
+  }
+}
+```
+
+### 3. 同一性をもつ

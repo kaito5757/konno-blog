@@ -1,8 +1,8 @@
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
-  title: 'Dev Blog',
+  title: 'Konno Blog',
   author: 'Kaito Konno',
-  headerTitle: 'Dev Blog',
+  headerTitle: 'Konno Blog',
   description: '日々学んだことを発信していくブログ',
   language: 'ja',
   theme: 'system', // system, dark or light

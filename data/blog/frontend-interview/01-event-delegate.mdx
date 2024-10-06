@@ -6,5 +6,45 @@ draft: false
 summary: Frontend Interview HandbookのJavaScriptに関する質問「イベントデリゲーションについて説明してください」をまとめた記事
 ---
 
+## イベントデリゲーションとは
+- イベントリスナーを小要素に追加するのではなく、親要素に追加する手法。
+- リスナーは子孫要素でイベントがトリガーされるたびに発生する。
+- イベントバブリングというイベントが発生した要素から親要素に向かって伝播するJavascriptの特性を利用している。
+- メリット
+  - 子孫ごとにイベントハンドラーをアタッチするのではなく親要素に1つのハンドラーしか必要ないため、メモリの使用量が減少する。
+  - 削除された要素からハンドラを外したり、新しい要素にイベントをつける必要がなくなる。
+
+```
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>イベントデリゲーションの例</title>
+</head>
+<body>
+    <ul id="itemList">
+        <li>アイテム1</li>
+        <li>アイテム2</li>
+        <li>アイテム3</li>
+    </ul>
+
+    <script src="script.js"></script>
+</body>
+</html>
+```
+```
+document.getElementById('itemList').addEventListener('click', function(event) {
+    if (event.target.tagName === 'LI') {
+        alert('クリックされたアイテム: ' + event.target.textContent);
+    }
+});
+```
+```
+// li要素をクリックすると以下アラートが表示される
+クリックされたアイテム: アイテム1
+クリックされたアイテム: アイテム2
+クリックされたアイテム: アイテム3
+```
+
 ## 参考
 - [JavaScript に関する質問](https://www.frontendinterviewhandbook.com/ja-JP/javascript-questions#%E3%82%A4%E3%83%99%E3%83%B3%E3%83%88%E3%83%87%E3%83%AA%E3%82%B2%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6%E8%AA%AC%E6%98%8E%E3%81%97%E3%81%A6%E3%81%8F%E3%81%A0%E3%81%95%E3%81%84)

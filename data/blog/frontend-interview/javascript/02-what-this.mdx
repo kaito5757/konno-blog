@@ -1,0 +1,84 @@
+---
+title: JavaScriptのthisについて
+date: '2024-10-08'
+tags: ['Frontend Interview Handbook']
+draft: false
+summary: Frontend Interview HandbookのJavaScriptに関する質問「JavaScript の this はどう機能するものなのか説明してください」をまとめた記事
+---
+
+## 概要
+- 関数の呼び出し方法によって指す場所が変わる。
+- 通常の関数とアロー関数でも指す場所が変わる。
+
+## ⚪︎通常の関数の場合
+### 1. `new`キーワードを使って関数を呼び出す場合
+- 関数内の`this`は、**新しいオブジェクト**を指す。
+```
+function Person(name: string) {
+  this.name = name
+}
+
+const person = new Person("Alice");
+console.log(person.name); // "Alice"
+```
+
+### 2. `apply`, `call`, `bind`を使って関数を呼び出す場合
+- 関数内の`this`は、**引数として渡されたオブジェクト**を指す。
+```
+function greet() {
+  console.log(`Hello, my name is ${this.name}`);
+}
+
+const person = { name: "Bob" };
+greet.call(person); // "Hello, my name is Bob"
+```
+
+### 3. 他の関数内で関数を呼び出す場合
+- 関数内の`this`は、呼び出した**関数**を指す。
+```
+const person = {
+  name: "Charlie",
+  greet: function() {
+    console.log(this.name);
+  }
+};
+
+person.greet(); // "Charlie"
+```
+
+### 4. どの関数にも属さず関数を呼び出す場合
+- 関数内の`this`は**グローバルオブジェクト**（`window`）を指す。
+```
+function sayHello() {
+  console.log(this);
+}
+
+sayHello();  // Window オブジェクト (ブラウザ環境では)
+```
+- `strict`モード（`use strict`）の場合は、関数内の`this`がグローバルオブジェクトではなく`undefined`になる。
+```
+"use strict";
+
+function sayHello() {
+  console.log(this);
+}
+
+sayHello();  // undefined
+```
+
+## ⚪︎アロー関数の場合
+- 自分自身の`this`を持たず、外側のスコープの`this`を継承する。
+```
+const person = {
+  name: "Alice",
+  greet: function() {
+    const innerGreet = () => {
+      console.log(this.name);
+    };
+    innerGreet();
+  }
+};
+
+person.greet();  // "Alice"
+
+```

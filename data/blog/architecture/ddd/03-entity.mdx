@@ -23,25 +23,27 @@ summary: ライフサイクルのあるオブジェクト「エンティティ�
 - エンティティの属性を変化させたいときは、ふるまいを通じて属性を変更する。
   - 例）ユーザー名
 ```
-class User {
-  private name: string;
+export class UserName {
+  public value: string;
 
-  constructor(name: string) {
-    this.changeName(name);
+  constructor(value: string) {
+    this.change(value);
   }
 
-  public changeName(name: string | null): void {
-    if (!name) {
-      throw new Error(`ArgumentNullException: ${name}`);
-    }
-    if (name.length < 3) {
+  public change(value: string): void {
+    if (value.length < 3) {
       throw new Error("ユーザ名は3文字以上です。");
     }
-    this.name = name;
+    this.value = value;
   }
+}
+```
+```
+export class User {
+  constructor(public name: UserName) {}
 
-  public getName(): string {
-    return this.name;
+  public changeName(name: UserName): void {
+    this.name = name;
   }
 }
 ```
@@ -55,39 +57,59 @@ class User {
 class UserId {
   public readonly value: string;
 
-  constructor(value: string | null) {
-    if (!value) {
-      throw new Error(`ArgumentNullException: value`);
+  constructor(value: string) {
+    if (!this.isValidUUID(value)) {
+      throw new Error(`InvalidUUIDFormatException: The value '${value}' is not a valid UUID.`);
     }
     this.value = value;
   }
-}
-```
-```
-class UserName {
-  public readonly value: string;
 
-  constructor(value: string | null) {
-    if (!value) {
-      throw new Error(`ArgumentNullException: value`);
-    }
-    if (value.length < 3) {
-      throw new Error("ユーザ名は3文字以上です。");
-    }
-    this.value = value;
+  private isValidUUID(value: string): boolean {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(value);
   }
 }
 ```
 ```
 class User {
-  public readonly id: UserId;
-  public readonly name: UserName;
-
-  constructor(id: UserId, name: UserName) {
-    this.id = id;
-    this.name = name;
-  }
+  constructor(public readonly id: UserId) {}
 }
 ```
 
 ### 3. 同一性をもつ
+- 属性が変更されても同一のオブジェクトとして認識するために、識別子（Identity）を利用する。
+- 識別子はフィールドとして保持するだけでは意味がないので、同一性の比較を行うためのふるまいが必要。
+
+```
+class UserId {
+  public readonly value: string;
+
+  constructor(value: string) {
+    if (!this.isValidUUID(value)) {
+      throw new Error(`InvalidUUIDFormatException: The value '${value}' is not a valid UUID.`);
+    }
+    this.value = value;
+  }
+
+  equals(other: UserId): boolean {
+    return this.value === other.value;
+  }
+
+  private isValidUUID(value: string): boolean {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(value);
+  }
+}
+```
+```
+class User {
+  constructor(public readonly id: UserId) {}
+
+  equals(other?: User | null): boolean {
+    if (!other) return false;
+    if (this === other) return true;
+
+    return this.id.equals(other.id);
+  }
+}
+```

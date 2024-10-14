@@ -7,3 +7,94 @@ summary: 不自然さを解消する「ドメインサービス」について�
 ---
 
 ## ⚪︎ドメインサービスとは
+- ドメインオブジェクトのロジックを実装するために使用されるオブジェクト。
+- 値オブジェクトやエンティティに記述すると不自然になってしまうふるまいをドメインサービスに記述することで、不自然さを解決することができる。
+
+### 1. 不自然なふるまい
+#### 例）「ユーザー名」に関する不自然なふるまい
+- 現実では同姓同名は許可されるが、システムにおいては重複を許可しない場合がある。
+- これはドメインのルールであり、ドメインオブジェクトのふるまいとして定義する必要がある。
+- ユーザーに関するルールなので、Userクラスに重複確認のふるまい（`exists`）を追加する。
+  - 重複チェックを自身に対して行うことになり、不自然になってしまう。
+```
+export class UserId {
+  constructor(private value: string) {}
+
+  get value(): string {
+    return this.value;
+  }
+}
+```
+```
+export class UserName {
+  constructor(private value: string) {}
+
+  get value(): string {
+    return this.value;
+  }
+}
+```
+```
+export class User {
+  constructor(private readonly id: UserId, private name: UserName) {}
+
+  public exists(user: User) {
+    (...省略...)
+  }
+
+  get id(): UserId {
+    return this.id
+  };
+
+  get name(): UserName {
+    return this.name
+  };
+}
+```
+```
+const userId = new UserId("id");
+const userName = new UserName("name");
+const user = new User(userId, userName);
+
+// 自身に対して重複チェックを行っている
+const duplicateCheckResult = user.exists(user);
+console.log(duplicateCheckResult); // true or false
+```
+- 別のアプローチとして、重複チェック用のUserオブジェクトを用意する。
+  - 自身に対して重複チェックはしていないが、重複チェック用に作成したオブジェクトがユーザーを表すオブジェクトでありながらユーザーではない、
+  不自然なオブジェクトが存在してしまっている。
+```
+// チェックするために作成された不自然なオブジェクトが存在している。
+const checkId = new UserId("check");
+const checkName = new UserName("checker");
+const checkObject = new User(userId, userName);
+
+const userId = new UserId("id");
+const userName = new UserName("name");
+const user = new User(userId, userName);
+
+const duplicateCheckResult = checkObject.exists(user);
+console.log(duplicateCheckResult); // true or false
+```
+
+### 2. 不自然さを解消
+- 重複チェックのふるまいを、ドメインサービスに定義する。
+  - ドメインサービスを用意することで、自身に重複チェックを行ったり、チェック用のオブジェクトを用意する必要がなくなり、
+  不自然さを解消することができる。
+```
+export class UserService {
+  public exists(user: User) {
+    (...省略...)
+  }
+}
+```
+```
+const userService = new UserService();
+
+const userId = new UserId("id");
+const userName = new UserName("name");
+const user = new User(userId, userName);
+
+const duplicateCheckResult = userService.exists(user);
+console.log(duplicateCheckResult); // true or false
+```

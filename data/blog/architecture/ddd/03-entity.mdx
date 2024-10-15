@@ -63,7 +63,7 @@ export class User {
 - 値オブジェクトは等価性の比較によって区別されるが、エンティティは識別子（Identity）によって識別される。
   - 例）識別子（UserId）を追加したユーザーオブジェクト
 ```
-class UserId {
+export class UserId {
   private value: string;
 
   constructor(value: string) {
@@ -84,7 +84,7 @@ class UserId {
 }
 ```
 ```
-class User {
+export class User {
   constructor(private readonly id: UserId) {}
 
   get id(): UserId {
@@ -98,7 +98,7 @@ class User {
 - 識別子はフィールドとして保持するだけでは意味がないので、同一性の比較を行うためのふるまいが必要。
 
 ```
-class UserId {
+export class UserId {
   private value: string;
 
   constructor(value: string) {
@@ -123,7 +123,7 @@ class UserId {
 }
 ```
 ```
-class User {
+export class User {
   constructor(private readonly id: UserId) {}
 
   equals(other?: User | null): boolean {

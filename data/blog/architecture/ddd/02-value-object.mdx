@@ -1,5 +1,5 @@
 ---
-title: 値オブジェクトについて
+title: 値オブジェクト
 date: '2024-09-23'
 tags: ['ドメイン駆動開発']
 draft: false
@@ -24,12 +24,14 @@ console.log(lastName); // ❌ "john" が表示されてしまう
   - インスタンス生成時に、正しくコンストラクタに値を指定すれば姓名の順序が変わることなく取り出すことができる。
 ```
 export class FullName {
-  public readonly firstName: string;
-  public readonly lastName: string;
+  constructor(private firstName: string, private lastName: string) {}
 
-  constructor(firstName: string, lastName: string) {
-    this.firstName = firstName;
-    this.lastName = lastName;
+  get firstName(): string {
+    return this.firstName;
+  }
+
+  get lastName(): string {
+    return this.lastName;
   }
 }
 ```
@@ -52,12 +54,14 @@ console.log(fullName.lastName); // ⭕️ "smith" が表示される
 - 同じ値を持つ他の値オブジェクトと自由に交換が可能。
 ```
 export class FullName {
-  public readonly firstName: string;
-  public readonly lastName: string;
+  constructor(private firstName: string, private lastName: string) {}
 
-  constructor(firstName: string, lastName: string) {
-    this.firstName = firstName;
-    this.lastName = lastName;
+  get firstName(): string {
+    return this.firstName;
+  }
+
+  get lastName(): string {
+    return this.lastName;
   }
 }
 ```
@@ -72,12 +76,14 @@ console.log(updatedFullName.lastName); // "sato" が表示される
 - 値オブジェクトは値なので、属性を取り出して比較するのは値オブジェクトではない。
 ```
 export class FullName {
-  public readonly firstName: string;
-  public readonly lastName: string;
+  constructor(private firstName: string, private lastName: string) {}
 
-  constructor(firstName: string, lastName: string) {
-    this.firstName = firstName;
-    this.lastName = lastName;
+  get firstName(): string {
+    return this.firstName;
+  }
+
+  get lastName(): string {
+    return this.lastName;
   }
 }
 ```
@@ -96,18 +102,20 @@ console.log(compareResult); // false が表示される
   - 属性が追加されても修正が一つ（比較用のメソッド）で済む
 ```
 export class FullName {
-  public readonly firstName: string;
-  public readonly lastName: string;
-
-  constructor(firstName: string, lastName: string) {
-    this.firstName = firstName;
-    this.lastName = lastName;
-  }
+  constructor(private firstName: string, private lastName: string) {}
 
   equals(other: FullName | null): boolean {
     if (other === null) return false;
     if (this === other) return true;
     return this.firstName === other.firstName && this.lastName === other.lastName;
+  }
+
+  get firstName(): string {
+    return this.firstName;
+  }
+
+  get lastName(): string {
+    return this.lastName;
   }
 }
 ```
@@ -136,28 +144,23 @@ console.log(fullName1.equals(fullName3)); // false が表示される
   - 例）お金を加算するAdd
 ```
 export class Money {
-  private readonly amount: number;
-  private readonly currency: string;
-
-  constructor(amount: number, currency: string) {
-    if (!currency) {
-      throw new Error('currency must not be null, undefined, or empty');
-    }
-
-    this.amount = amount;
-    this.currency = currency;
-  }
+  constructor(private amount: number, private currency: string) {}
 
   // 例）お金を加算するAdd
   add(arg: Money): Money {
-    if (!arg) {
-      throw new Error('Argument cannot be null or undefined');
-    }
     if (this.currency !== arg.currency) {
       throw new Error(`通貨単位が異なります（this:${this.currency}, arg:${arg.currency}）`);
     }
 
     return new Money(this.amount + arg.amount, this.currency);
+  }
+
+  get amount(): number {
+    return this.amount;
+  }
+
+  get currency(): string {
+    return this.currency;
   }
 }
 ```
@@ -184,15 +187,27 @@ const modelNumber = "a54321-200-5"
 ```
 ```
 // 値オブジェクトで定義した製品番号
-class ModelNumber {
+export class ModelNumber {
   constructor(
-    public readonly productCode: string,
-    public readonly branch: string,
-    public readonly lot: string
+    private readonly productCode: string,
+    private readonly branch: string,
+    private readonly lot: string
   ) {}
 
   public toString(): string {
     return `${this.productCode}-${this.branch}-${this.lot}`;
+  }
+
+  get productCode(): string {
+    return this.productCode;
+  }
+
+  get branch(): string {
+    return this.branch;
+  }
+
+  get lot(): string {
+    return this.lot;
   }
 }
 ```
@@ -209,18 +224,21 @@ const userName = "me";
 ```
 // 値オブジェクトにガード節を書くことで不正な値を防ぐことができる。
 // 毎回不正値のチェックをしなくて済む。
-class UserName {
-  private readonly value: string;
+export class UserName {
+  private value: string;
 
   constructor(value: string) {
-    if (!value) {
-      throw new Error(`ArgumentNullException: ${value}`);
-    }
     if (value.length < 3) {
       throw new Error(`ユーザ名は3文字以上です。: ${value}`);
     }
-
+    if (value.length > 10) {
+      throw new Error(`ユーザ名は10文字以下です。: ${value}`);
+    }
     this.value = value;
+  }
+
+  get value(): string {
+    return this.value;
   }
 }
 ```
@@ -229,14 +247,8 @@ class UserName {
 - プリミティブな値を使用すると、誤った代入する可能性がある。
   - 値オブジェクトを使用しない場合
 ```
-class User {
-  public id: string;
-  public name: string;
-
-  constructor(id: string, name: string) {
-    this.id = id;
-    this.name = id;
-  }
+export class User {
+  constructor(public id: string, public name: string) {}
 }
 ```
 ```
@@ -249,38 +261,26 @@ function createUser(name: string): User {
 - 値オブジェクトを使用することで、誤った代入を防ぐことができる。
   - 値オブジェクトを利用する場合
 ```
-class UserId {
-  private readonly value: string;
+export class UserId {
+  constructor(private value: string) {}
 
-  constructor(value: string | null) {
-    if (!value) {
-      throw new Error(`ArgumentNullException: ${value}`);
-    }
-    this.value = value;
+  get value(): string {
+    return this.value;
   }
 }
 ```
 ```
-class UserName {
-  private readonly value: string;
+export class UserName {
+  constructor(value: string) {}
 
-  constructor(value: string | null) {
-    if (!value) {
-      throw new Error(`ArgumentNullException: ${value}`);
-    }
-    this.value = value;
+  get value(): string {
+    return this.value;
   }
 }
 ```
 ```
-class User {
-  public Id: UserId;
-  public Name: UserName;
-
-  constructor(id: UserId, name: UserName) {
-    this.Id = id;
-    this.Name = name;
-  }
+export class User {
+  constructor(public id: UserId, public name: UserName) {}
 }
 ```
 ```
@@ -324,8 +324,8 @@ function UpdateUser(id: string, name?: string | null): void {
 - 入力値のチェックを値オブジェクトで行うことで重複を防ぐことができる。
   - 値オブジェクトを使用する場合
 ```
-class UserName {
-  private readonly value: string;
+export class UserName {
+  private value: string;
 
   constructor(value: string | null) {
     if (!value) {
@@ -339,14 +339,8 @@ class UserName {
 }
 ```
 ```
-class User {
-  private readonly id: UserId;
-  private readonly name: UserName;
-
-  constructor(id: UserId, name: UserName) {
-    this.id = id;
-    this.name = name;
-  }
+export class User {
+  constructor(public id: UserId, public name: UserName) {}
 }
 ```
 ```

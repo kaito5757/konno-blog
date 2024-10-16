@@ -1,5 +1,6 @@
 ---
-title: エンティティについて
+title: エンティティ
+
 date: '2024-10-02'
 tags: ['ドメイン駆動開発']
 draft: false
@@ -24,7 +25,7 @@ summary: ライフサイクルのあるオブジェクト「エンティティ�
   - 例）ユーザー名
 ```
 export class UserName {
-  public value: string;
+  private value: string;
 
   constructor(value: string) {
     this.change(value);
@@ -36,14 +37,22 @@ export class UserName {
     }
     this.value = value;
   }
+
+  get value(): string {
+    return this.value;
+  }
 }
 ```
 ```
 export class User {
-  constructor(public name: UserName) {}
+  constructor(private name: UserName) {}
 
   public changeName(name: UserName): void {
-    this.name = name;
+    this.name.change(name.value);
+  }
+
+  get name(): UserName {
+    return this.name;
   }
 }
 ```
@@ -54,8 +63,8 @@ export class User {
 - 値オブジェクトは等価性の比較によって区別されるが、エンティティは識別子（Identity）によって識別される。
   - 例）識別子（UserId）を追加したユーザーオブジェクト
 ```
-class UserId {
-  public readonly value: string;
+export class UserId {
+  private value: string;
 
   constructor(value: string) {
     if (!this.isValidUUID(value)) {
@@ -68,11 +77,19 @@ class UserId {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return uuidRegex.test(value);
   }
+
+  get value(): string {
+    return this.value;
+  }
 }
 ```
 ```
-class User {
-  constructor(public readonly id: UserId) {}
+export class User {
+  constructor(private readonly id: UserId) {}
+
+  get id(): UserId {
+    return this.id;
+  }
 }
 ```
 
@@ -81,8 +98,8 @@ class User {
 - 識別子はフィールドとして保持するだけでは意味がないので、同一性の比較を行うためのふるまいが必要。
 
 ```
-class UserId {
-  public readonly value: string;
+export class UserId {
+  private value: string;
 
   constructor(value: string) {
     if (!this.isValidUUID(value)) {
@@ -99,17 +116,25 @@ class UserId {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return uuidRegex.test(value);
   }
+
+  get value(): string {
+    return this.value;
+  }
 }
 ```
 ```
-class User {
-  constructor(public readonly id: UserId) {}
+export class User {
+  constructor(private readonly id: UserId) {}
 
   equals(other?: User | null): boolean {
     if (!other) return false;
     if (this === other) return true;
 
     return this.id.equals(other.id);
+  }
+
+  get id(): UserId {
+    return this.id;
   }
 }
 ```

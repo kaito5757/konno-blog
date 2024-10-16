@@ -1,0 +1,179 @@
+---
+title: ドメインサービス
+date: '2024-10-14'
+tags: ['ドメイン駆動開発']
+draft: false
+summary: 不自然さを解消する「ドメインサービス」についてまとめた記事
+---
+
+## ⚪︎ドメインサービスとは
+- ドメインオブジェクトのロジックを実装するために使用されるオブジェクト。
+- 値オブジェクトやエンティティに記述すると不自然になってしまうふるまいをドメインサービスに記述することで、不自然さを解決することができる。
+
+### 1. 不自然なふるまい
+#### 例）「ユーザー名」に関する不自然なふるまい
+- 現実では同姓同名は許可されるが、システムにおいては重複を許可しない場合がある。
+- これはドメインのルールであり、ドメインオブジェクトのふるまいとして定義する必要がある。
+- ユーザーに関するルールなので、Userクラスに重複確認のふるまい（`exists`）を追加する。
+  - 重複チェックを自身に対して行うことになり、不自然になってしまう。
+```
+export class UserId {
+  constructor(private value: string) {}
+
+  get value(): string {
+    return this.value;
+  }
+}
+```
+```
+export class UserName {
+  constructor(private value: string) {}
+
+  get value(): string {
+    return this.value;
+  }
+}
+```
+```
+export class User {
+  constructor(private readonly id: UserId, private name: UserName) {}
+
+  public exists(user: User) {
+    (...省略...)
+  }
+
+  get id(): UserId {
+    return this.id
+  };
+
+  get name(): UserName {
+    return this.name
+  };
+}
+```
+```
+const userId = new UserId("id");
+const userName = new UserName("name");
+const user = new User(userId, userName);
+
+// 自身に対して重複チェックを行っている
+const duplicateCheckResult = user.exists(user);
+console.log(duplicateCheckResult); // true or false
+```
+- 別のアプローチとして、重複チェック用のUserオブジェクトを用意する。
+  - 自身に対して重複チェックはしていないが、重複チェック用に作成したオブジェクトがユーザーを表すオブジェクトでありながらユーザーではない、
+  不自然なオブジェクトが存在してしまっている。
+```
+// チェックするために作成された不自然なオブジェクトが存在している。
+const checkId = new UserId("check");
+const checkName = new UserName("checker");
+const checkObject = new User(userId, userName);
+
+const userId = new UserId("id");
+const userName = new UserName("name");
+const user = new User(userId, userName);
+
+const duplicateCheckResult = checkObject.exists(user);
+console.log(duplicateCheckResult); // true or false
+```
+
+### 2. 不自然さを解消
+- 重複チェックのふるまいを、ドメインサービスに定義する。
+  - ドメインサービスを用意することで、自身に重複チェックを行ったり、チェック用のオブジェクトを用意する必要がなくなり、
+  不自然さを解消することができる。
+```
+export class UserService {
+  public exists(user: User) {
+    (...省略...)
+  }
+}
+```
+```
+const userService = new UserService();
+
+const userId = new UserId("id");
+const userName = new UserName("name");
+const user = new User(userId, userName);
+
+const duplicateCheckResult = userService.exists(user);
+console.log(duplicateCheckResult); // true or false
+```
+
+## ⚪︎ドメインサービスの濫用
+- ドメインサービスに記述するのは、「不自然なふるまい」のみ。
+- エンティティに記述すべきふるまいをドメインサービスに記述してしまうと、
+エンティティがゲッターとセッターのみとなってしまい、どのようなルールがあるかわからなくなる。
+（**ドメインモデル貧血症**と呼ぶ）
+  - 例）ドメインサービスにユーザー名変更のふるまいを記述
+```
+export class UserService {
+  public changeName(user: User, newName: UserName) {
+    if (newName.value.length < 3) {
+      throw new Error("ユーザー名は3文字以上です。");
+    }
+    user.name = newName;
+  }
+}
+```
+```
+// ゲッターとセッターのみのエンティティになってしまう
+export class User {
+  constructor(private readonly id: UserId, private name: UserName) {}
+
+  get id(): UserId {
+    return this.id
+  };
+
+  get name(): UserName {
+    return this.name
+  };
+}
+```
+
+## ドメインサービスの例
+### 物流サービス
+- 物流システムは、荷物を拠点から直接配送するのではなく、
+拠点から配送先の近くの拠点に輸送してから配送をします。
+
+#### 物流拠点
+- 物流サービスには、物流拠点という概念が存在する。
+- ドメインの重要な概念で、エンティティとして定義される。
+```
+export class PhysicalDistributionBase {
+  (...略...)
+
+  // 出庫
+  public ship(baggage: Baggage): Baggage {
+    (...略...)
+  }
+
+  // 入庫
+  public Receive(baggage: Baggage): void {
+    (...略...)
+  }
+}
+```
+
+#### 輸送
+- 物流サービスには、物流拠点から他の物流拠点に荷物を配送する輸送という概念が存在する。
+- 物流拠点エンティティに輸送のふるまいを記述すると、物流拠点が他の物流拠点へ直接荷物を渡すように見えてしまい、
+少し不自然に感じられる。
+- 物流拠点は、出庫と入庫を行うドメインで輸送は行わない。
+- この場合は、輸送のふるまいをドメインサービスに記述する。
+```
+export class TransportService {
+  public Transport(
+    form: PhysicalDistributionBase,
+    to: PhysicalDistributionBase,
+    baggage: Baggage
+  ): void {
+    (...略...)
+  }
+}
+```
+
+## ⚪︎ドメインサービスの命名規則
+- 命名規則は次の3つに分けられる。
+  - 1. ドメインの概念
+  - 2. ドメインの概念 + Service
+  - 3. ドメインの概念 + DomainService

@@ -118,3 +118,16 @@ class Program {
   }
 }
 ```
+
+## ⚪︎リポジトリのインターフェース
+- リポジトリはインターフェース（抽象型）で定義される。
+- リポジトリに定義するふるまいは、最低限必要な処理だけにする。
+  - 早まって準備したふるまいは、結局不要になることもある。
+```
+export interface IUserRepository {
+  findById(id: UserId): Promise<User | null>
+  save(user: User): Promise<User>
+}
+```
+
+

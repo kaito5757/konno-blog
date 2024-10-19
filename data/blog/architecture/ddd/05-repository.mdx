@@ -14,14 +14,50 @@ summary: データにまつわる処理を分離する「リポジトリ」に�
 
 ## ⚪︎リポジトリの役割
 - ドメインオブジェクトの永続化や再構築を行うこと
-- 例）ユーザー作成
+
+### 1. 永続化
+- 永続化のふるまい（save, deleteなど）は、永続化を行うオブジェクトを引数にとる。
+```
+// ⭕️
+export interface IUserRepository {
+  save(user: User): Promise<User>
+}
+```
+- 対象の識別子と更新項目を引数にとるふるまいを定義してしまうと、多くの更新用のふるまいが定義されてしまう。
+```
+// ❌
+export interface IUserRepository {
+  updateName(id: UserId, name: UserName): Promise<User>
+  updateEmail(id: UserId, name: Email): Promise<User>
+}
+```
+
+## 2. 再構築
+- 再構築のふるまい（findなど）は、永続化を行うオブジェクトを返す。
+```
+export interface IUserRepository {
+  find(id: UserId): Promise<User>
+}
+```
+- 探索のふるまいは、パフォーマンスを考慮して適したふるまいを定義する。
+```
+export interface IUserRepository {
+  // ⭕️
+  findById(id: UserId): Promise<User>
+  findByUserName(name: UserName): Promise<User[]>
+  // ❌
+  findAll(): Promise<User[]>
+}
+```
+
+### 3. 例）ユーザー作成
 ```
 // ドメインオブジェクト
 export class UserId {
-  constructor(private isValue: string) {}
+  constructor(private idValue: string) {}
 
   get value(): string {
-    return this.isValue
+    return this.idValue
   }
 }
 
@@ -71,8 +107,7 @@ export class UserRepository implements IUserRepository {
       return Promise.resolve(null)
     }
 
-    const userName = new UserName(queryUser.name)
-    const user = new User(id, userName)
+    const user = new User(id, new UserName(queryUser.name))
     return Promise.resolve(user)
   }
 
@@ -130,4 +165,48 @@ export interface IUserRepository {
 }
 ```
 
+## ⚪︎テスト用のリポジトリ
+- ドメインの変化を受けてソフトウェアが変化するためにはテストが必要。
+  - テストを用意することで、コード変更後にソフトウェアが期待通りに動作するか正確に確認できる。
+- テストを行う際に特定のインフラストラクチャ（データストアなど）を準備するのは大変。
+  - テスト用のリポジトリを用意することで、テストを容易に行える。
+```
+export class InMemoryUserRepository implements IUserRepository {
+  private users: { id: string; name: string }[] = []
 
+  async findById(id: UserId): Promise<User | null> {
+    const queryUser = this.users.find((user) => user.id === id.value)
+    if (!queryUser) {
+      return Promise.resolve(null)
+    }
+
+    const userName = new UserName(queryUser.name)
+    const user = new User(id, userName)
+    return Promise.resolve(user)
+  }
+
+  async save(user: User): Promise<User> {
+    this.users.push({ id: user.id.value, name: user.name.value })
+    return Promise.resolve(user)
+  }
+}
+```
+```
+describe('UserService', () => {
+  let userService: UserService
+
+  beforeEach(() => {
+    const userRepository = InMemoryUserRepository()
+    userService = new UserService(userRepository)
+  })
+
+  it('should add a new user', async () => {
+    const user = new User(new UserId('4'), new UserName('Shiro'))
+    await userService.addUser(user)
+    const foundUser = await userService.findUser(user.id)
+    expect(foundUser).not.toBeNull()
+    expect(foundUser?.name.value).toBe('Shiro')
+  })
+})
+
+```

@@ -1,0 +1,212 @@
+---
+title: リポジトリ
+date: '2024-10-17'
+tags: ['ドメイン駆動開発']
+draft: false
+summary: データにまつわる処理を分離する「リポジトリ」についてまとめた記事
+---
+
+## ⚪︎リポジトリとは
+- データを永続化し再構築するといったデータにまつわる処理を扱うためのオブジェクト
+- 永続化や再構築は、直接データストアにアクセスするのではなく、リポジトリを通して行う。
+  - ドメインは、データストアの存在を知らなくてもよい。
+  - リポジトリでデータストアとのやりとりを抽象化することで、ドメインの独立性を高めることができる。
+
+## ⚪︎リポジトリの役割
+- ドメインオブジェクトの永続化や再構築を行うこと
+
+### 1. 永続化
+- 永続化のふるまい（save, deleteなど）は、永続化を行うオブジェクトを引数にとる。
+```
+// ⭕️
+export interface IUserRepository {
+  save(user: User): Promise<User>
+}
+```
+- 対象の識別子と更新項目を引数にとるふるまいを定義してしまうと、多くの更新用のふるまいが定義されてしまう。
+```
+// ❌
+export interface IUserRepository {
+  updateName(id: UserId, name: UserName): Promise<User>
+  updateEmail(id: UserId, name: Email): Promise<User>
+}
+```
+
+## 2. 再構築
+- 再構築のふるまい（findなど）は、永続化を行うオブジェクトを返す。
+```
+export interface IUserRepository {
+  find(id: UserId): Promise<User>
+}
+```
+- 探索のふるまいは、パフォーマンスを考慮して適したふるまいを定義する。
+```
+export interface IUserRepository {
+  // ⭕️
+  findById(id: UserId): Promise<User>
+  findByUserName(name: UserName): Promise<User[]>
+  // ❌
+  findAll(): Promise<User[]>
+}
+```
+
+### 3. 例）ユーザー作成
+```
+// ドメインオブジェクト
+export class UserId {
+  constructor(private idValue: string) {}
+
+  get value(): string {
+    return this.idValue
+  }
+}
+
+export class UserName {
+  constructor(private nameValue: string) {}
+
+  get value(): string {
+    return this.nameValue
+  }
+}
+
+export class User {
+  constructor(
+    private readonly userId: UserId,
+    private userName: UserName
+  ) {}
+
+  get id() {
+    return this.userId
+  }
+
+  get name() {
+    return this.userName
+  }
+}
+```
+```
+// データストア
+export const users = [
+  { id: '1', name: 'Taro' },
+  { id: '2', name: 'Jiro' },
+  { id: '3', name: 'Saburo' },
+]
+
+```
+```
+// リポジトリ
+export interface IUserRepository {
+  findById(id: UserId): Promise<User | null>
+  save(user: User): Promise<User>
+}
+
+export class UserRepository implements IUserRepository {
+  findById(id: UserId): Promise<User | null> {
+    const queryUser = users.find((user) => user.id === id.value)
+    if (!queryUser) {
+      return Promise.resolve(null)
+    }
+
+    const user = new User(id, new UserName(queryUser.name))
+    return Promise.resolve(user)
+  }
+
+  save(user: User): Promise<User> {
+    users.push({ id: user.id.value, name: user.name.value })
+    return Promise.resolve(user)
+  }
+}
+```
+```
+// ドメインサービス
+export class UserService {
+  constructor(private readonly userRepository: IUserRepository) {}
+
+  public async findUser(id: UserId): Promise<User | null> {
+    return await this.userRepository.findById(id)
+  }
+
+  public async addUser(user: User): Promise<User> {
+    return await this.userRepository.save(user)
+  }
+
+  public async exist(id: UserId): Promise<boolean> {
+    const user = await this.userRepository.findById(id)
+    return user !== null
+  }
+}
+
+```
+```
+// ドメインロジック（業務ロジック）
+class Program {
+  constructor(private userRepository: UserRepository) {}
+
+  async run() {
+    const user = new User(new UserId('1'), new UserName('Taro'))
+    const userService = new UserService(this.userRepository)
+    if (await userService.exist(user.id)) {
+      throw new Error('user already exists')
+    } else {
+      await userService.addUser(user)
+    }
+  }
+}
+```
+
+## ⚪︎リポジトリのインターフェース
+- リポジトリはインターフェース（抽象型）で定義される。
+- リポジトリに定義するふるまいは、最低限必要な処理だけにする。
+  - 早まって準備したふるまいは、結局不要になることもある。
+```
+export interface IUserRepository {
+  findById(id: UserId): Promise<User | null>
+  save(user: User): Promise<User>
+}
+```
+
+## ⚪︎テスト用のリポジトリ
+- ドメインの変化を受けてソフトウェアが変化するためにはテストが必要。
+  - テストを用意することで、コード変更後にソフトウェアが期待通りに動作するか正確に確認できる。
+- テストを行う際に特定のインフラストラクチャ（データストアなど）を準備するのは大変。
+  - テスト用のリポジトリを用意することで、テストを容易に行える。
+```
+export class InMemoryUserRepository implements IUserRepository {
+  private users: { id: string; name: string }[] = []
+
+  async findById(id: UserId): Promise<User | null> {
+    const queryUser = this.users.find((user) => user.id === id.value)
+    if (!queryUser) {
+      return Promise.resolve(null)
+    }
+
+    const userName = new UserName(queryUser.name)
+    const user = new User(id, userName)
+    return Promise.resolve(user)
+  }
+
+  async save(user: User): Promise<User> {
+    this.users.push({ id: user.id.value, name: user.name.value })
+    return Promise.resolve(user)
+  }
+}
+```
+```
+describe('UserService', () => {
+  let userService: UserService
+
+  beforeEach(() => {
+    const userRepository = InMemoryUserRepository()
+    userService = new UserService(userRepository)
+  })
+
+  it('should add a new user', async () => {
+    const user = new User(new UserId('4'), new UserName('Shiro'))
+    await userService.addUser(user)
+    const foundUser = await userService.findUser(user.id)
+    expect(foundUser).not.toBeNull()
+    expect(foundUser?.name.value).toBe('Shiro')
+  })
+})
+
+```

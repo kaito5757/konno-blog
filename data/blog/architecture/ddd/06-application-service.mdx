@@ -10,7 +10,9 @@ summary: ユースケースを実現する「アプリケーションサービ�
 - ユースケースを実現するオブジェクト。
   - 例）ユーザー機能
     - 「ユーザーを登録する」ユースケース
-    - 「ユーザー情報を変更する」ユースケースなど
+    - 「ユーザー情報を確認する」ユースケース
+    - 「ユーザー情報を更新する」ユースケース
+    - 「退会する」ユースケース
 - ドメインオブジェクトを組み合わせて実行するスクリプトのようなふるまい。
 
 ### [おまけ]アプリケーションとは？
@@ -18,3 +20,138 @@ summary: ユースケースを実現する「アプリケーションサービ�
   - 利用者の必要を満たしたり、目的を達成することが目的。
 - ドメインオブジェクトはドメインのコード上の現身であり、それだけ存在していても利用者の目的を達成することはできない。
   - ドメインオブジェクトを使って、利用者の目的を達成するアプリケーションサービスを作成することで、利用者の目的を達成することができる。
+
+## ⚪︎ユースケースとは
+- 利用者の目的を達成するための一覧の流れ。
+- ドメインオブジェクト、アプリケーションサービスなどを組み合わせて実現する。
+
+### 例）ユーザー機能
+#### 1. ドメインオブジェクトの実装
+- ユーザーは、ライフサイクルがあるモデルなのでエンティティで実装する。
+```
+export class UserId {
+  constructor(private userId: string) {}
+
+  get value(): string {
+    return this.userId
+  }
+}
+```
+
+```
+export class UserName {
+  private userName: string
+
+  constructor(userName: string) {
+    if (userName.length < 3) {
+      throw new Error('ユーザー名は3文字以上です。')
+    }
+    if (userName.length > 20) {
+      throw new Error('ユーザー名は20文字以下です。')
+    }
+
+    this.userName = userName
+  }
+
+  get value(): string {
+    return this.userName
+  }
+}
+```
+
+```
+import { UserId } from './userId'
+import { UserName } from './userName'
+
+export class User {
+  private readonly userId: UserId
+  private userName: UserName
+
+  constructor(userName: UserName) {
+    this.userId = new UserId(Math.random().toString(36).substring(2, 10))
+    this.userName = userName
+  }
+
+  public changeName(userName: UserName): void {
+    this.userName = userName
+  }
+
+  get id(): UserId {
+    return this.userId
+  }
+
+  get name(): UserName {
+    return this.userName
+  }
+}
+
+```
+
+#### 2. リポジトリの実装
+- ユーザーの永続化と再構築を行う必要があるので、リポジトリを実装する。
+  - データストアはメモリ上の配列とする。
+```
+import { User } from './user'
+import { UserId } from './userId'
+import { UserName } from './userName'
+
+export interface IUserRepository {
+  findById(userId: UserId): User | null
+  findByName(userName: UserName): User | null
+  save(user: User): void
+  delete(user: User): void
+}
+```
+
+```
+import { IUserRepository } from './iUserRepository'
+import { User } from './user'
+import { UserId } from './userId'
+import { UserName } from './userName'
+
+export class UserMemoryRepository implements IUserRepository {
+  private readonly userDataStore: { userId: string; userName: string }[]
+
+  public findById(userId: UserId): User | null {
+    const user = this.userDataStore.find((user) => user.userId === userId.value)
+    return user ? new User(new UserName(user.userName)) : null
+  }
+
+  public findByName(userName: UserName): User | null {
+    const user = this.userDataStore.find((user) => user.userName === userName.value)
+    return user ? new User(new UserName(user.userName)) : null
+  }
+
+  public save(user: User): void {
+    const index = this.userDataStore.findIndex((userData) => userData.userId === user.id.value)
+    if (index === -1) {
+      this.userDataStore.push({ userId: user.id.value, userName: user.name.value })
+    } else {
+      this.userDataStore[index].userName = user.name.value
+    }
+  }
+
+  public delete(user: User): void {
+    const index = this.userDataStore.findIndex((userData) => userData.userId === user.id.value)
+    this.userDataStore.splice(index, 1)
+  }
+}
+```
+
+#### 3. ドメインサービスの実装
+- ユーザーの重複チェックを行う必要があるため、ドメインサービスで実装する。
+```
+import { IUserRepository } from './IUserRepository'
+import { User } from './User'
+
+export class UserService {
+  constructor(private readonly userRepository: IUserRepository) {}
+
+  public exists(user: User): boolean {
+    return this.userRepository.findById(user.id) !== null
+  }
+}
+```
+
+#### 4. アプリケーションサービスの実装
+

@@ -154,4 +154,92 @@ export class UserService {
 ```
 
 #### 4. アプリケーションサービスの実装
+##### ⚪︎ユーザー登録処理の実装
+```
+class UserApplicationService {
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly userService: UserService
+  ) {}
 
+  // ユーザー登録処理
+  public register(name: string): void {
+    const user = new User(new UserName(name))
+    if (this.userService.exists(user)) {
+      throw new Error('ユーザーが既に存在します。')
+    }
+
+    this.userRepository.save(user)
+  }
+}
+```
+
+##### ⚪︎ユーザー情報取得処理の実装
+  - ユーザー登録処理と異なり、結果を返却する必要がある。この時に結果となるオブジェクトとしてドメインオブジェクトをそのまま戻り値とするか否かの選択は、
+  重要な分岐点になる。
+- ドメインオブジェクトを公開することに決めた場合
+```
+class UserApplicationService {
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly userService: UserService
+  ) {}
+
+  // ユーザー情報取得処理
+  public get(userId: string): User | null {
+    return this.userRepository.findById(new UserId(userId))
+  }
+}
+```
+- コードは比較的シンプルになるが、同時にわずかな危険性を伴う。
+  - アプリケーションサービス以外のオブジェクトがドメインオブジェクトを直接操作することができてしまう。
+  - ドメインオブジェクトのふるまいを呼び出す役目はアプリケーションサービスの責務。
+  - 色んな場所でドメインオブジェクトのふるまいが呼び出され、ドメインオブジェクトに対する多くの依存が発生してしまう。
+```
+class Client {
+  constructor(private userApplicationService: UserApplicationService) {}
+
+  public changeName(id: string, name: string): void {
+    const user = this.userApplicationService.get(id)
+    // ドメインオブジェクトを直接操作することができてしまう。
+    user.changeName(new UserName(name))
+  }
+}
+```
+- 解決策の1つとして、ドメインオブジェクトを直接公開しない方法がある。
+  - ドメインオブジェクトを非公開とした時、クライアントにはデータ転送用オブジェクト（DTO、Data Transfer Object）に変換して渡す。
+  - DTOのコンストラクタは、ドメインオブジェクトを受け取ることでパラメーターが追加されることになっても修正するのは、DTOのみで済む。
+  - DTOは、そのクラス自体を定義する手間とデータの移し替えを行うためドメインオブジェクトを直接公開した場合に比べるとパフォーマンス上劣る部分があるが、
+  不用意な依存を防ぎ、ドメインオブジェクトの変化を防げないようにすることのほうが重要視される場合もある。
+```
+export class UserDto {
+  public id: string
+  public name: string
+
+  constructor(user: User) {
+    this.id = user.id.value
+    this.name = user.name.value
+  }
+}
+```
+```
+export class UserApplicationService {
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly userService: UserService
+  ) {}
+
+  // ユーザー情報取得処理
+  public get(userId: string): UserDto {
+    const user = this.userRepository.findById(new UserId(userId))
+    if (!user) {
+      throw new Error('ユーザーが存在しません。')
+    }
+    return new UserDto(user)
+  }
+}
+```
+- ドメインオブジェクトを公開するかしないかは大きな分岐点。
+  - ドメインオブジェクトを公開したからといって即問題が起きるわけではなく、
+  ドメインオブジェクトを非公開にしたとこで増えるコード量に煩わしいを感じこともある。
+  - どちらを採用するかはプロジェクトのポリシーによる。

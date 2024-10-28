@@ -89,3 +89,43 @@ export class UserService {
     return this.userRepository.findById(user.id) !== null
   }
 }
+
+export class UserApplicationService {
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly userService: UserService
+  ) {}
+
+  // ユーザー登録処理
+  public register(name: string): void {
+    const user = new User(new UserName(name))
+    if (this.userService.exists(user)) {
+      throw new Error('ユーザーが既に存在します。')
+    }
+
+    this.userRepository.save(user)
+  }
+
+  // ユーザー情報取得処理
+  public get(userId: string): UserDto {
+    const user = this.userRepository.findById(new UserId(userId))
+    if (!user) {
+      throw new Error('ユーザーが存在しません。')
+    }
+    return new UserDto(user)
+  }
+}
+
+class Client {
+  constructor(private userApplicationService: UserApplicationService) {}
+}
+
+export class UserDto {
+  public id: string
+  public name: string
+
+  constructor(user: User) {
+    this.id = user.id.value
+    this.name = user.name.value
+  }
+}

@@ -378,5 +378,11 @@ export class UserApplicationService {
 }
 ```
 
+## ⚪︎ドメインルールの流出
+- ドメインのルールをアプリケーションサービスに記述しない。
+  - 記述してしまうと重複コードが増え修正漏れによるバグが発生する可能性が高くなる。
+- ドメインルールはドメインオブジェクトに実装する。
+  - 同じルールが点在することを防ぎ、修正漏れによるバグを防ぐことができる。
+
 ## ⚪︎参考
 - [ドメイン駆動設計入門 ボトムアップでわかる！ドメイン駆動設計の基本](https://www.amazon.co.jp/%E3%83%89%E3%83%A1%E3%82%A4%E3%83%B3%E9%A7%86%E5%8B%95%E8%A8%AD%E8%A8%88%E5%85%A5%E9%96%80-%E3%83%9C%E3%83%88%E3%83%A0%E3%82%A2%E3%83%83%E3%83%97%E3%81%A7%E3%82%8F%E3%81%8B%E3%82%8B%EF%BC%81%E3%83%89%E3%83%A1%E3%82%A4%E3%83%B3%E9%A7%86%E5%8B%95%E8%A8%AD%E8%A8%88%E3%81%AE%E5%9F%BA%E6%9C%AC-%E6%88%90%E7%80%AC-%E5%85%81%E5%AE%A3-ebook/dp/B082WXZVPC/ref=sr_1_2?__mk_ja_JP=%E3%82%AB%E3%82%BF%E3%82%AB%E3%83%8A&crid=1QGNMABGHS9DQ&dib=eyJ2IjoiMSJ9.UZGoFI895yynkLeXbLkNJKWb7aUvd8SBRL2veQzGAWnBWnzrYMcExIb3oJrFZzJOeRhQAb23HGchNoZP_v8EBh0imrgb9TbFE9yEEe9rQjB39tun6sCEuZUQyjhpcqolftIAsNFJaRyvxwI24JUUQ0dH1_54t87aAGFYLgmJzX7NtNCOrKDeui9CphSwOSRT8DOwXVSRoQtHj0InNK2k74hVbV900oxNsf05fLfbV2m2Pc8kNdH5repWa3EQQnQmOyEKSQaMOJGBhkUzzF_E___XWY24VLYmx7WFVPawEcM.nUWFnto43RTCGF5ZZUDrE4X42xV8UI7Ys3q77lsb4qQ&dib_tag=se&keywords=%E3%83%89%E3%83%A1%E3%82%A4%E3%83%B3%E9%A7%86%E5%8B%95%E8%A8%AD%E8%A8%88&qid=1730160084&sprefix=%E3%83%89%E3%83%A1%E3%82%A4%E3%83%B3%E9%A7%86%E5%8B%95%E8%A8%AD%E8%A8%88%2Caps%2C236&sr=8-2)

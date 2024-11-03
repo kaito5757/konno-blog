@@ -177,6 +177,55 @@ export class UserApplicationService {
   }
 }
 
+export class UserRegisterCommand {
+  constructor(
+    private userId: string,
+    private userName: string,
+    private userMailAddress: string
+  ) {}
+
+  get id(): string {
+    return this.userId
+  }
+
+  get name(): string {
+    return this.userName
+  }
+
+  get mailAddress(): string {
+    return this.userMailAddress
+  }
+}
+
+export class UserRegisterService {
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly userService: UserService
+  ) {}
+
+  public handle = (command: UserRegisterCommand): void => {
+    const user = new User(new UserName(command.name), new MailAddress(command.mailAddress))
+    if (this.userService.exists(user)) {
+      throw new Error('ユーザーが既に存在します。')
+    }
+
+    this.userRepository.save(user)
+  }
+}
+
+export class UserDeleteService {
+  constructor(private readonly userRepository: IUserRepository) {}
+
+  public handle = (command: UserDeleteCommand): void => {
+    const targetId = new UserId(command.id)
+    const targetUser = this.userRepository.findById(targetId)
+    if (!targetUser) {
+      throw new Error('ユーザーが存在しません。')
+    }
+    this.userRepository.delete(targetUser)
+  }
+}
+
 class Client {
   constructor(private userApplicationService: UserApplicationService) {}
 
@@ -223,7 +272,8 @@ export class UserUpdateCommand {
 export class UserDeleteCommand {
   constructor(
     private userId: string,
-    private userName: string
+    private userName: string,
+    private userMailAddress: string
   ) {}
 
   get id(): string {
@@ -232,5 +282,9 @@ export class UserDeleteCommand {
 
   get name(): string {
     return this.userName
+  }
+
+  get mailAddress(): string {
+    return this.userMailAddress
   }
 }

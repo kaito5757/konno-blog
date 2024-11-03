@@ -165,10 +165,25 @@ export class UserApplicationService {
     }
     this.userRepository.save(user)
   }
+
+  // ユーザー退会処理
+  public delete = (command: UserDeleteCommand): void => {
+    const targetId = new UserId(command.id)
+    const targetUser = this.userRepository.findById(targetId)
+    if (!targetUser) {
+      throw new Error('ユーザーが存在しません。')
+    }
+    this.userRepository.delete(targetUser)
+  }
 }
 
 class Client {
   constructor(private userApplicationService: UserApplicationService) {}
+
+  public update(userId: string, userName: string, userMailAddress?: string): void {
+    const command = new UserUpdateCommand(userId, userName, userMailAddress)
+    this.userApplicationService.update(command)
+  }
 }
 
 export class UserDto {
@@ -202,5 +217,20 @@ export class UserUpdateCommand {
 
   get mailAddress(): string | undefined {
     return this.userMailAddress
+  }
+}
+
+export class UserDeleteCommand {
+  constructor(
+    private userId: string,
+    private userName: string
+  ) {}
+
+  get id(): string {
+    return this.userId
+  }
+
+  get name(): string {
+    return this.userName
   }
 }

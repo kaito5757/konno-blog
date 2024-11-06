@@ -28,7 +28,9 @@ export class UserName {
 export class MailAddress {
   private mailAddress: string
 
-  constructor(mailAddress: string) {
+  constructor(mailAddress?: string) {
+    if (!mailAddress) return
+
     if (mailAddress.length < 3) {
       throw new Error('ユーザー名は3文字以上です。')
     }
@@ -181,7 +183,7 @@ export class UserRegisterCommand {
   constructor(
     private userId: string,
     private userName: string,
-    private userMailAddress: string
+    private userMailAddress?: string
   ) {}
 
   get id(): string {
@@ -192,12 +194,16 @@ export class UserRegisterCommand {
     return this.userName
   }
 
-  get mailAddress(): string {
+  get mailAddress(): string | undefined {
     return this.userMailAddress
   }
 }
 
-export class UserRegisterService {
+export interface IUserRegisterService {
+  handle(command: UserRegisterCommand): void
+}
+
+export class UserRegisterService implements IUserRegisterService {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly userService: UserService
@@ -213,7 +219,11 @@ export class UserRegisterService {
   }
 }
 
-export class UserDeleteService {
+export interface IUserDeleteService {
+  handle(command: UserDeleteCommand): void
+}
+
+export class UserDeleteService implements IUserDeleteService {
   constructor(private readonly userRepository: IUserRepository) {}
 
   public handle = (command: UserDeleteCommand): void => {
@@ -227,11 +237,19 @@ export class UserDeleteService {
 }
 
 class Client {
-  constructor(private userApplicationService: UserApplicationService) {}
+  constructor(
+    private userRegisterService: IUserRegisterService,
+    private userDeleteService: IUserDeleteService
+  ) {}
 
-  public update(userId: string, userName: string, userMailAddress?: string): void {
-    const command = new UserUpdateCommand(userId, userName, userMailAddress)
-    this.userApplicationService.update(command)
+  public register(userId: string, userName: string, userMailAddress?: string): void {
+    const command = new UserRegisterCommand(userId, userName, userMailAddress)
+    this.userRegisterService.handle(command)
+  }
+
+  public delete(userId: string): void {
+    const command = new UserDeleteCommand(userId)
+    this.userDeleteService.handle(command)
   }
 }
 
@@ -270,21 +288,9 @@ export class UserUpdateCommand {
 }
 
 export class UserDeleteCommand {
-  constructor(
-    private userId: string,
-    private userName: string,
-    private userMailAddress: string
-  ) {}
+  constructor(private userId: string) {}
 
   get id(): string {
     return this.userId
-  }
-
-  get name(): string {
-    return this.userName
-  }
-
-  get mailAddress(): string {
-    return this.userMailAddress
   }
 }

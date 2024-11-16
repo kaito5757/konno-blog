@@ -84,6 +84,42 @@ export interface IUserRepository {
   delete(user: User): void
 }
 
+export class UserMemoryRepository implements IUserRepository {
+  private readonly userDataStore: { userId: string; userName: string; userMailAddress: string }[]
+
+  public findById(userId: UserId): User | null {
+    const user = this.userDataStore.find((user) => user.userId === userId.value)
+    return user
+      ? new User(new UserName(user.userName), new MailAddress(user.userMailAddress))
+      : null
+  }
+
+  public findByName(userName: UserName): User | null {
+    const user = this.userDataStore.find((user) => user.userName === userName.value)
+    return user
+      ? new User(new UserName(user.userName), new MailAddress(user.userMailAddress))
+      : null
+  }
+
+  public save(user: User): void {
+    const index = this.userDataStore.findIndex((userData) => userData.userId === user.id.value)
+    if (index === -1) {
+      this.userDataStore.push({
+        userId: user.id.value,
+        userName: user.name.value,
+        userMailAddress: user.mailAddress.value,
+      })
+    } else {
+      this.userDataStore[index].userName = user.name.value
+    }
+  }
+
+  public delete(user: User): void {
+    const index = this.userDataStore.findIndex((userData) => userData.userId === user.id.value)
+    this.userDataStore.splice(index, 1)
+  }
+}
+
 export class UserRepository implements IUserRepository {
   private readonly userDataStore: { userId: string; userName: string; userMailAddress: string }[]
 
@@ -294,3 +330,59 @@ export class UserDeleteCommand {
     return this.userId
   }
 }
+
+export class ServiceLocator {
+  private static services: Map<string, unknown> = new Map()
+
+  public static register<T>(key: string, service: T): void {
+    this.services.set(key, service)
+  }
+
+  public static get<T>(key: string): T {
+    const service = this.services.get(key)
+
+    if (!service) {
+      throw new Error(`Service not found: ${key}`)
+    }
+    return service as T
+  }
+}
+
+export const createService = <T, U>(developService: new () => T, defaultService: new () => U) => {
+  return process.env.NODE_ENV === 'development' ? new developService() : new defaultService()
+}
+
+ServiceLocator.register<IUserRepository>(
+  'UserRepository',
+  createService(UserMemoryRepository, UserRepository)
+)
+
+export class IoCContainer {
+  private services: Map<string, unknown> = new Map()
+
+  public register<T>(key: string, service: T): void {
+    this.services.set(key, service)
+  }
+
+  public get<T>(key: string): T {
+    const service = this.services.get(key)
+    if (!service) {
+      throw new Error(`Service not found: ${key}`)
+    }
+    return service as T
+  }
+}
+
+const container = new IoCContainer()
+
+container.register('UserRepository', new UserRepository())
+container.register('UserService', new UserService(container.get<UserRepository>('UserRepository')))
+container.register(
+  'UserApplicationService',
+  new UserApplicationService(
+    container.get<UserRepository>('UserRepository'),
+    container.get<UserService>('UserService')
+  )
+)
+
+const userApplicationService = container.get<UserApplicationService>('UserApplicationService')

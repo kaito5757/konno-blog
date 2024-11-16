@@ -1,0 +1,149 @@
+---
+title: コントロール
+date: '2024-11-12'
+tags: ['Domain-Driven Design']
+draft: false
+summary: ドメイン駆動設計の「コントロール」についてまとめた記事
+---
+
+## ⚪︎依存関係逆転の原則
+1. SOLID原則の1つ
+2. 高レベルモジュール（ビジネスロジックなど）と低レベルモジュール（データストアなど）のお互いが
+インターフェースや抽象クラスに依存する。
+3. 抽象クラスは、具象クラスに依存しない。
+
+### ・高レベルモジュール
+- 人間に近い抽象的な処理を表すモジュール
+
+### ・低レベルモジュール
+- 機械に近い具体的な処理を表すモジュール
+
+### ・メリット
+- 高レベルモジュールと低レベルモジュールの間の結合度を低くすることができる
+- 高レベルモジュールを変更しなくても低レベルモジュールを変更できる
+- テストがしやすい
+
+```
+❌ UserApplicationService -> UserRepository
+✅ UserApplicationService -> IUserRepository <- UserRepository
+```
+
+## ⚪︎Servece Locatorパターン
+- オブジェクトに依存解決先となるオブジェクトを事前に登録しておき、インスタンスが必要となる各所で、
+ServiceLocatorを経由してインスタンスを取得するパターン
+- ServiceLocator経由でインスタンスを取得することで、アプリケーションの中核を担うロジックを修正する必要がなくなる
+
+```
+export class ServiceLocator {
+  private static services: Map<string, unknown> = new Map()
+
+  public static register<T>(key: string, service: T): void {
+    this.services.set(key, service)
+  }
+
+  public static get<T>(key: string): T {
+    const service = this.services.get(key)
+
+    if (!service) {
+      throw new Error(`Service not found: ${key}`)
+    }
+    return service as T
+  }
+}
+
+export const createService = <T, U>(developService: new () => T, defaultService: new () => U) => {
+  return process.env.NODE_ENV === 'development' ? new developService() : new defaultService()
+}
+```
+```
+ServiceLocator.register<IUserRepository>(
+  'UserRepository',
+  createService(UserMemoryRepository, UserRepository)
+)
+```
+```
+export class UserApplicationService {
+  private readonly userRepository: IUserRepository;
+
+  constructor() {
+    // ServiceLocator経由でインスタンスを取得する
+    this.userRepository = ServiceLocator.get('UserRepository');
+  }
+
+  // 既存処理
+}
+```
+
+- 以下の2つの理由からアンチパターンであると言われている。
+  - 依存関係が外部から見えづらくなる
+  - テストの維持が難しくなる
+
+### 1. 依存関係が外部から見えづらくなる
+- アプリケーションサービスを見ただけでは、どのサービスを利用しているかわからないため、可読性が低下する
+
+### 2. テストの維持が難しくなる
+- 依存関係をServiceLocator経由で取得しているので、テストコードでモック用リポジトリを使用するために、特別な処理が必要になる。
+- 依存関係が増えるたびにテストコードも同じように対応する必要がある。
+
+## ⚪︎IoC Container（DI Container）パターン
+### Dependency Injectionパターン
+- コンストラクタで依存するオブジェクトを注入する（コンストラクタインジェクション）
+- 使用することで、依存関係の変更に強制力をもたすことができる。
+```
+export class UserApplicationService {
+  // 新たな依存関係を追加すると使用先でコンパイルエラーになる
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly userService: UserService
+  ) {}
+}
+```
+```
+export class UserService {
+  constructor(private readonly userRepository: IUserRepository) {}
+}
+```
+```
+const userRepository = new UserRepository()
+const userService = new UserService(userRepository)
+
+const userApplicationService = new UserApplicationService(userRepository, userService)
+```
+
+### IoC Containerパターン（正直使い方違うかも...）
+```
+export class IoCContainer {
+  private services: Map<string, unknown> = new Map()
+
+  public register<T>(key: string, service: T): void {
+    this.services.set(key, service)
+  }
+
+  public get<T>(key: string): T {
+    const service = this.services.get(key)
+    if (!service) {
+      throw new Error(`Service not found: ${key}`)
+    }
+    return service as T
+  }
+}
+```
+```
+const container = new IoCContainer()
+
+container.register('UserRepository', new UserRepository())
+container.register('UserService', new UserService(container.get<UserRepository>('UserRepository')))
+container.register(
+  'UserApplicationService',
+  new UserApplicationService(
+    container.get<UserRepository>('UserRepository'),
+    container.get<UserService>('UserService')
+  )
+)
+```
+```
+const userApplicationService = container.get<UserApplicationService>('UserApplicationService')
+```
+
+## ⚪︎参考
+- [ドメイン駆動設計入門 ボトムアップでわかる！ドメイン駆動設計の基本](https://www.amazon.co.jp/%E3%83%89%E3%83%A1%E3%82%A4%E3%83%B3%E9%A7%86%E5%8B%95%E8%A8%AD%E8%A8%88%E5%85%A5%E9%96%80-%E3%83%9C%E3%83%88%E3%83%A0%E3%82%A2%E3%83%83%E3%83%97%E3%81%A7%E3%82%8F%E3%81%8B%E3%82%8B%EF%BC%81%E3%83%89%E3%83%A1%E3%82%A4%E3%83%B3%E9%A7%86%E5%8B%95%E8%A8%AD%E8%A8%88%E3%81%AE%E5%9F%BA%E6%9C%AC-%E6%88%90%E7%80%AC-%E5%85%81%E5%AE%A3-ebook/dp/B082WXZVPC/ref=sr_1_2?__mk_ja_JP=%E3%82%AB%E3%82%BF%E3%82%AB%E3%83%8A&crid=1QGNMABGHS9DQ&dib=eyJ2IjoiMSJ9.UZGoFI895yynkLeXbLkNJKWb7aUvd8SBRL2veQzGAWnBWnzrYMcExIb3oJrFZzJOeRhQAb23HGchNoZP_v8EBh0imrgb9TbFE9yEEe9rQjB39tun6sCEuZUQyjhpcqolftIAsNFJaRyvxwI24JUUQ0dH1_54t87aAGFYLgmJzX7NtNCOrKDeui9CphSwOSRT8DOwXVSRoQtHj0InNK2k74hVbV900oxNsf05fLfbV2m2Pc8kNdH5repWa3EQQnQmOyEKSQaMOJGBhkUzzF_E___XWY24VLYmx7WFVPawEcM.nUWFnto43RTCGF5ZZUDrE4X42xV8UI7Ys3q77lsb4qQ&dib_tag=se&keywords=%E3%83%89%E3%83%A1%E3%82%A4%E3%83%B3%E9%A7%86%E5%8B%95%E8%A8%AD%E8%A8%88&qid=1730160084&sprefix=%E3%83%89%E3%83%A1%E3%82%A4%E3%83%B3%E9%A7%86%E5%8B%95%E8%A8%AD%E8%A8%88%2Caps%2C236&sr=8-2)

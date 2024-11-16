@@ -165,10 +165,10 @@ export class UserService {
 }
 
 export class UserApplicationService {
-  private readonly userRepository: IUserRepository
-  constructor(private readonly userService: UserService) {
-    this.userRepository = ServiceLocator.get('UserRepository')
-  }
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly userService: UserService
+  ) {}
 
   // ユーザー登録処理
   public register(name: string, mailAddress: string): void {
@@ -356,3 +356,33 @@ ServiceLocator.register<IUserRepository>(
   'UserRepository',
   createService(UserMemoryRepository, UserRepository)
 )
+
+export class IoCContainer {
+  private services: Map<string, unknown> = new Map()
+
+  public register<T>(key: string, service: T): void {
+    this.services.set(key, service)
+  }
+
+  public get<T>(key: string): T {
+    const service = this.services.get(key)
+    if (!service) {
+      throw new Error(`Service not found: ${key}`)
+    }
+    return service as T
+  }
+}
+
+const container = new IoCContainer()
+
+container.register('UserRepository', new UserRepository())
+container.register('UserService', new UserService(container.get<UserRepository>('UserRepository')))
+container.register(
+  'UserApplicationService',
+  new UserApplicationService(
+    container.get<UserRepository>('UserRepository'),
+    container.get<UserService>('UserService')
+  )
+)
+
+const userApplicationService = container.get<UserApplicationService>('UserApplicationService')
